@@ -8,21 +8,21 @@ export type TimelineItem = {
 export const timelineItems: TimelineItem[] = [
   {
     date: "aug. 2023 - jun. 2026",
-    title: "Bechelor i ingeniørfag, data",
+    title: "Bachelor i ingeniørfag, data",
     description:
-        "Bachelor i ingeniørfag, data med spesialisering innen systemutvikling ved NTNU Trondheim.",
+      "Bachelor i ingeniørfag, data med spesialisering innen systemutvikling ved NTNU Trondheim.",
     tags: [
-        "Algoritmer og datastrukturer",
-        "Full-stack applikasjonsutvikling",
-        "Databaser",
-        "Operativsystemer",
+      "Algoritmer og datastrukturer",
+      "Full-stack applikasjonsutvikling",
+      "Databaser",
+      "Operativsystemer",
     ],
   },
   {
     date: "Sommer 2025",
     title: "Internship hos KLP teknologi",
     description:
-      "Skal jobbe i avdelingen 'oppgjør' hos KLP med å hjelpe til å utvikle deres pensjonssystem.",
+      "Skal jobbe i avdelingen 'oppgjør' hos KLP Teknologi med forbedringsoppgaver i produksjon, i tillegg til analyse og løsningsdesign.",
     tags: ["React", "Spring-boot"],
   },
   {
@@ -36,7 +36,7 @@ export const timelineItems: TimelineItem[] = [
     date: "nov. 2024 - nå",
     title: "Kulturstyret UKA-25",
     description:
-      "Som gjengsjef for Regi sitter jeg i kulturstyret for UKA-25 nordens største kulturfestival.",
+      "Som gjengsjef for Regi sitter jeg i kulturstyret for UKA-25, nordens største kulturfestival.",
     tags: ["Prosjektledelse", "Økonomisk styring"],
   },
   {
@@ -44,6 +44,6 @@ export const timelineItems: TimelineItem[] = [
     title: "Lystekniker",
     description:
       "Frivillig i gjengen 'Regi' Studentersamfundet i trondhjems lys- og scenetekniske gjeng. Vi gjør alt av lys og sceneteknikk på verdens 8. største utested.",
-    tags: ["Lys-design", "Sceneteknikk", "Rigging"],
+    tags: ["Lysdesign", "Sceneteknikk", "Rigging"],
   },
 ];
