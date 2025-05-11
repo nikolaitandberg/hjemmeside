@@ -58,7 +58,16 @@ export default function Home() {
             <ul className="mt-6 md:mt-12 self-start">
               <li>Navn: Nikolai Tandberg</li>
               <li>Fødselsdato: 21.12.04</li>
-              <li>E-post: nikolai.tandbe@gmail.com</li>
+              <li>
+                E-post:{" "}
+                <a
+                  href="mailto:nikolai.tandbe@gmail.com"
+                  className="transition-colors duration-300 ease-in-out hover:text-secondary"
+                >
+                  nikolai.tandbe@gmail.com
+                </a>
+              </li>
+              <li>Sted: Trondheim</li>
             </ul>
           </section>
 
