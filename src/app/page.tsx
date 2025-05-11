@@ -4,8 +4,8 @@ import { timelineItems } from "./data/timelineData";
 
 export default function Home() {
   return (
-    <div className="min-h-screen mx-auto">
-      <header className="flex h-10 justify-around mt-4">
+    <div className="min-h-screen mx-auto w-4/6">
+      <header className="flex h-10 justify-between mt-4">
         <a
           href="https://github.com/nikolaitandberg"
           className="transition-colors duration-300 ease-in-out hover:text-secondary "
@@ -25,7 +25,7 @@ export default function Home() {
           linkedin
         </a>
       </header>
-      <main className="mx-auto mt-24 w-4/6">
+      <main className="mx-auto mt-24 w-full">
         <h1 className="text-4xl font-bold">Hei! Jeg heter Nikolai</h1>
         <p className="my-4">
           Takk for at du sjekker innom hjemmesiden min, ta en titt nedenfor for
