@@ -1,7 +1,6 @@
 # Personlig hjemmeside/e-portefølje
 
-En minimalistisk e-portefølje laget med Next.js for å vise frem min utdanning, erfaring og mine prosjekter. 
-
+En minimalistisk e-portefølje laget med Next.js for å vise frem min utdanning, erfaring og mine prosjekter.
 
 ## Teknologier
 
