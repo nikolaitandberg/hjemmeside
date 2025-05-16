@@ -1,0 +1,33 @@
+name: Code Quality Check
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check code formatting with Prettier
+        run: npx prettier --check .
+
+      - name: Lint code with ESLint
+        run: npm run lint
+
+      - name: Build project
+        run: npm run build
