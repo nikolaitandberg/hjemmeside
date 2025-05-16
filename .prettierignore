@@ -1,0 +1,5 @@
+node_modules
+.next
+
+# Ignore Prisma generated files
+src/generated/prisma/**
