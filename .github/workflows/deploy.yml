@@ -13,6 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Debug SSH key
+        run: |
+          ls -la ~/.ssh/
+          cat ~/.ssh/id_ed25519 | head -1
+          echo "Key file exists: $(test -f ~/.ssh/id_ed25519 && echo Yes || echo No)"
+
       - name: Set up SSH access
         run: |
           mkdir -p ~/.ssh
