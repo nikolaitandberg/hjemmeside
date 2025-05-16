@@ -1,0 +1,43 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH access
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # Add your server's SSH key fingerprint to known_hosts
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Server
+        run: |
+          # SSH into the server and run deployment commands
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            # Navigate to your app directory
+            cd hjemmeside
+
+            # Pull the latest changes from GitHub
+            git pull origin main
+
+            # Build the Docker container
+            docker build -t nikolaitandberg-hjemmeside .
+
+            # Stop and remove the old container (if it exists)
+            docker stop nikolaitandberg-hjemmeside || true
+            docker rm nikolaitandberg-hjemmeside || true
+
+            # Run the new container in detached mode
+            docker run -d --name nikolaitandberg-hjemmeside -p 3000:3000 nikolaitandberg-hjemmeside
+          EOF
