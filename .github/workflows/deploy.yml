@@ -19,7 +19,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           # Add your server's SSH key fingerprint to known_hosts
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H -p ${{ secrets.SSH_PORT}} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
     
       - name: Debug SSH key
         run: |
