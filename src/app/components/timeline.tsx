@@ -1,25 +1,28 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 
 type TimelineItem = {
+  id?: string | number;
   date: string;
   title: string;
   description: string;
   tags?: string[];
 };
 
-type TimelineProps = {
-  items: TimelineItem[];
-};
+function Timeline() {
+  const [items, setItems] = useState<TimelineItem[]>([]);
 
-const Timeline: React.FC<TimelineProps> = ({ items }) => {
+  useEffect(() => {
+    fetch("/api/timeline")
+      .then(res => res.json())
+      .then(setItems);
+  }, []);
+
   return (
     <div className="w-full max-w-3xl mx-auto my-8">
       {items.map((item, index) => (
-        <div key={index} className="mb-12 relative">
-          {index < items.length - 1 && (
-            <div className="hidden sm:block absolute left-[7px] top-6 w-[2px] h-full bg-primary/30"></div>
-          )}
-
+        <div key={item.id ?? index} className="mb-12 relative">
+          {/* ...your existing timeline rendering code... */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
             <div className="flex-none sm:w-56">
               <div className="flex items-center">
@@ -29,7 +32,6 @@ const Timeline: React.FC<TimelineProps> = ({ items }) => {
                 </div>
               </div>
             </div>
-
             <div className="flex-1 mt-3 sm:mt-0">
               <h3 className="text-lg font-bold">{item.title}</h3>
               <p className="mt-1 text-foreground/80">{item.description}</p>
@@ -51,6 +53,6 @@ const Timeline: React.FC<TimelineProps> = ({ items }) => {
       ))}
     </div>
   );
-};
+}
 
 export default Timeline;
