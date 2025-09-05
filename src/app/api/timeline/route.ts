@@ -25,3 +25,9 @@ export async function DELETE(request: NextRequest) {
   await prisma.timelineItem.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
+
+export async function POST(request: NextRequest) {
+  const data = await request.json();
+  const timelineItem = await prisma.timelineItem.create({ data });
+  return NextResponse.json(timelineItem);
+}

@@ -23,3 +23,9 @@ export async function DELETE(request: NextRequest) {
   await prisma.project.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
+
+export async function POST(request: NextRequest) {
+  const data = await request.json();
+  const project = await prisma.project.create({ data });
+  return NextResponse.json(project);
+}
