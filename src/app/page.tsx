@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Timeline from "./components/timeline";
-import { timelineItems } from "./data/timelineData";
 
 export default function Home() {
   return (
@@ -72,8 +71,7 @@ export default function Home() {
           </section>
 
           <section className="col-span-1 md:col-span-2 mt-8 md:mt-0">
-            <h2 className="text-2xl font-bold">Min tidslinje</h2>
-            <Timeline items={timelineItems} />
+            <Timeline />
           </section>
         </div>
       </main>
