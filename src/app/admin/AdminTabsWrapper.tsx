@@ -4,6 +4,12 @@ import type { Project, TimelineItem } from "./AdminTabs";
 
 const AdminTabs = dynamic(() => import("./AdminTabs"), { ssr: false });
 
-export default function AdminTabsWrapper({ projects, timelineItems }: { projects: Project[]; timelineItems: TimelineItem[] }) {
+export default function AdminTabsWrapper({
+  projects,
+  timelineItems,
+}: {
+  projects: Project[];
+  timelineItems: TimelineItem[];
+}) {
   return <AdminTabs projects={projects} timelineItems={timelineItems} />;
 }

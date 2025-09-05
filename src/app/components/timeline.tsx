@@ -14,7 +14,7 @@ function Timeline() {
 
   useEffect(() => {
     fetch("/api/timeline")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setItems);
   }, []);
 

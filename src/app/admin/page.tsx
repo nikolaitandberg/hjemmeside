@@ -43,8 +43,12 @@ export default async function AdminPage() {
 
   // Fetch projects and timeline items from the database
 
-  const projects: Project[] = await prisma.project.findMany({ orderBy: { createdAt: "desc" } });
-  const timelineItems: TimelineItem[] = await prisma.timelineItem.findMany({ orderBy: { date: "desc" } });
+  const projects: Project[] = await prisma.project.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+  const timelineItems: TimelineItem[] = await prisma.timelineItem.findMany({
+    orderBy: { date: "desc" },
+  });
 
   return (
     <div className="max-w-3xl mx-auto p-8">

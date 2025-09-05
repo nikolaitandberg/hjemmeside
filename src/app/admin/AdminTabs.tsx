@@ -24,7 +24,13 @@ type TimelineItem = {
   updatedAt: Date;
 };
 
-export default function AdminTabs({ projects, timelineItems }: { projects: Project[]; timelineItems: TimelineItem[] }) {
+export default function AdminTabs({
+  projects,
+  timelineItems,
+}: {
+  projects: Project[];
+  timelineItems: TimelineItem[];
+}) {
   const [tab, setTab] = useState("projects");
   return (
     <div>
@@ -47,14 +53,23 @@ export default function AdminTabs({ projects, timelineItems }: { projects: Proje
           <h2 className="text-2xl font-semibold mb-4">Projects</h2>
           <ul className="mb-8">
             {projects.map((project: Project) => (
-              <li key={project.id} className="mb-4 p-4 bg-white rounded shadow flex flex-col gap-2">
+              <li
+                key={project.id}
+                className="mb-4 p-4 bg-white rounded shadow flex flex-col gap-2"
+              >
                 <div>
                   <span className="font-bold text-lg">{project.title}</span>
-                  <span className="ml-2 text-gray-500">{project.description}</span>
+                  <span className="ml-2 text-gray-500">
+                    {project.description}
+                  </span>
                 </div>
                 <div className="flex gap-2">
-                  <button className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary">Edit</button>
-                  <button className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700">Delete</button>
+                  <button className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary">
+                    Edit
+                  </button>
+                  <button className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700">
+                    Delete
+                  </button>
                 </div>
               </li>
             ))}
@@ -64,11 +79,15 @@ export default function AdminTabs({ projects, timelineItems }: { projects: Proje
             onSubmit={async (e) => {
               e.preventDefault();
               const form = e.target as HTMLFormElement;
-              const getValue = (name: string) => (form.elements.namedItem(name) as HTMLInputElement)?.value || "";
+              const getValue = (name: string) =>
+                (form.elements.namedItem(name) as HTMLInputElement)?.value ||
+                "";
               const data = {
                 title: getValue("title"),
                 description: getValue("description"),
-                technologies: getValue("technologies").split(",").map((t: string) => t.trim()),
+                technologies: getValue("technologies")
+                  .split(",")
+                  .map((t: string) => t.trim()),
                 imageUrl: getValue("imageUrl") || null,
                 githubUrl: getValue("githubUrl") || null,
                 liveUrl: getValue("liveUrl") || null,
@@ -83,13 +102,45 @@ export default function AdminTabs({ projects, timelineItems }: { projects: Proje
             }}
           >
             <h3 className="text-lg font-semibold mb-2">Add New Project</h3>
-            <input name="title" placeholder="Title" className="border p-2 rounded" required />
-            <input name="description" placeholder="Description" className="border p-2 rounded" required />
-            <input name="technologies" placeholder="Technologies (comma separated)" className="border p-2 rounded" required />
-            <input name="imageUrl" placeholder="Image URL" className="border p-2 rounded" />
-            <input name="githubUrl" placeholder="GitHub URL" className="border p-2 rounded" />
-            <input name="liveUrl" placeholder="Live URL" className="border p-2 rounded" />
-            <button type="submit" className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary">Add Project</button>
+            <input
+              name="title"
+              placeholder="Title"
+              className="border p-2 rounded"
+              required
+            />
+            <input
+              name="description"
+              placeholder="Description"
+              className="border p-2 rounded"
+              required
+            />
+            <input
+              name="technologies"
+              placeholder="Technologies (comma separated)"
+              className="border p-2 rounded"
+              required
+            />
+            <input
+              name="imageUrl"
+              placeholder="Image URL"
+              className="border p-2 rounded"
+            />
+            <input
+              name="githubUrl"
+              placeholder="GitHub URL"
+              className="border p-2 rounded"
+            />
+            <input
+              name="liveUrl"
+              placeholder="Live URL"
+              className="border p-2 rounded"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
+            >
+              Add Project
+            </button>
           </form>
         </div>
       ) : (
@@ -97,15 +148,22 @@ export default function AdminTabs({ projects, timelineItems }: { projects: Proje
           <h2 className="text-2xl font-semibold mb-4">Timeline Items</h2>
           <ul className="mb-8">
             {timelineItems.map((item: TimelineItem) => (
-              <li key={item.id} className="mb-4 p-4 bg-white rounded shadow flex flex-col gap-2">
+              <li
+                key={item.id}
+                className="mb-4 p-4 bg-white rounded shadow flex flex-col gap-2"
+              >
                 <div>
                   <span className="font-bold text-lg">{item.title}</span>
                   <span className="ml-2 text-gray-500">({item.date})</span>
                   <span className="ml-2 text-gray-500">{item.description}</span>
                 </div>
                 <div className="flex gap-2">
-                  <button className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary">Edit</button>
-                  <button className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700">Delete</button>
+                  <button className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary">
+                    Edit
+                  </button>
+                  <button className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700">
+                    Delete
+                  </button>
                 </div>
               </li>
             ))}
@@ -115,12 +173,16 @@ export default function AdminTabs({ projects, timelineItems }: { projects: Proje
             onSubmit={async (e) => {
               e.preventDefault();
               const form = e.target as HTMLFormElement;
-              const getValue = (name: string) => (form.elements.namedItem(name) as HTMLInputElement)?.value || "";
+              const getValue = (name: string) =>
+                (form.elements.namedItem(name) as HTMLInputElement)?.value ||
+                "";
               const data = {
                 title: getValue("title"),
                 date: getValue("date"),
                 description: getValue("description"),
-                tags: getValue("tags").split(",").map((t: string) => t.trim()),
+                tags: getValue("tags")
+                  .split(",")
+                  .map((t: string) => t.trim()),
               };
               await fetch("/api/admin/timeline", {
                 method: "POST",
@@ -131,12 +193,38 @@ export default function AdminTabs({ projects, timelineItems }: { projects: Proje
               window.location.reload();
             }}
           >
-            <h3 className="text-lg font-semibold mb-2">Add New Timeline Item</h3>
-            <input name="title" placeholder="Title" className="border p-2 rounded" required />
-            <input name="date" placeholder="Date (YYYY-MM-DD)" className="border p-2 rounded" required />
-            <input name="description" placeholder="Description" className="border p-2 rounded" required />
-            <input name="tags" placeholder="Tags (comma separated)" className="border p-2 rounded" />
-            <button type="submit" className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary">Add Timeline Item</button>
+            <h3 className="text-lg font-semibold mb-2">
+              Add New Timeline Item
+            </h3>
+            <input
+              name="title"
+              placeholder="Title"
+              className="border p-2 rounded"
+              required
+            />
+            <input
+              name="date"
+              placeholder="Date (YYYY-MM-DD)"
+              className="border p-2 rounded"
+              required
+            />
+            <input
+              name="description"
+              placeholder="Description"
+              className="border p-2 rounded"
+              required
+            />
+            <input
+              name="tags"
+              placeholder="Tags (comma separated)"
+              className="border p-2 rounded"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
+            >
+              Add Timeline Item
+            </button>
           </form>
         </div>
       )}

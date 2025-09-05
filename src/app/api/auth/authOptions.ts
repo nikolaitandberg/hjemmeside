@@ -2,7 +2,11 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { type AuthOptions, type SessionStrategy, type Session } from "next-auth";
+import {
+  type AuthOptions,
+  type SessionStrategy,
+  type Session,
+} from "next-auth";
 import { JWT } from "next-auth/jwt";
 
 const prisma = new PrismaClient();
@@ -23,7 +27,10 @@ export const authOptions: AuthOptions = {
           where: { email: credentials.email },
         });
         if (!user || !user.password) return null;
-        const isValid = await bcrypt.compare(credentials.password, user.password);
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password,
+        );
         if (!isValid) return null;
         return { id: user.id, email: user.email, name: user.name };
       },
