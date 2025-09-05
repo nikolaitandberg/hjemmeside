@@ -37,7 +37,9 @@ function Timeline() {
             </div>
             {/* Info column */}
             <div className="flex-1 flex flex-col min-w-0 pl-4 mb-12">
-              <div className="text-xs font-mono text-primary whitespace-nowrap mb-1">{item.date}</div>
+              <div className="text-xs font-mono text-primary whitespace-nowrap mb-1">
+                {item.date}
+              </div>
               <h3 className="text-lg font-bold">{item.title}</h3>
               <p className="mt-1 text-foreground/80">{item.description}</p>
               {item.tags && (
