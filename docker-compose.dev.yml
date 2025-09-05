@@ -1,4 +1,30 @@
 services:
   hjemmeside:
+    build: .
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=${DATABASE_URL}
     ports:
-      - "5555:5555" # Expose Prisma Studio only in development
+      - "3000:3000" # Next.js dev server
+      - "5555:5555" # Prisma Studio (if used)
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

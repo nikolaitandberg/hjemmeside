@@ -19,20 +19,27 @@ function Timeline() {
   }, []);
 
   return (
-    <div className="w-full max-w-3xl mx-auto my-8">
+    <div className="w-full max-w-3xl mx-auto my-8 flex flex-col items-center">
       {items.map((item, index) => (
-        <div key={item.id ?? index} className="mb-12 relative">
-          {/* ...your existing timeline rendering code... */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
-            <div className="flex-none sm:w-56">
-              <div className="flex items-center">
-                <div className="w-4 h-4 rounded-full bg-primary mt-1"></div>
-                <div className="text-sm font-mono ml-2 mt-2 text-primary whitespace-nowrap">
-                  {item.date}
-                </div>
-              </div>
+        <div key={item.id ?? index} className="relative w-full">
+          {/* Absolutely positioned line that goes through the margin */}
+          <div className="flex flex-row w-full">
+            {/* Dot/line column */}
+            <div className="flex flex-col items-center justify-start relative z-10 w-10">
+              <div className="w-4 h-4 rounded-full bg-primary z-10 mb-4"></div>
+              {/* Only render the vertical line for non-last items */}
+              {index !== items.length - 1 && (
+                <div
+                  className="absolute left-1/2 -translate-x-1/2 w-0.5 h-full bg-primary/40 z-0"
+                  aria-hidden="true"
+                />
+              )}
             </div>
-            <div className="flex-1 mt-3 sm:mt-0">
+            {/* Info column */}
+            <div className="flex-1 flex flex-col min-w-0 pl-4 mb-12">
+              <div className="text-xs font-mono text-primary whitespace-nowrap mb-1">
+                {item.date}
+              </div>
               <h3 className="text-lg font-bold">{item.title}</h3>
               <p className="mt-1 text-foreground/80">{item.description}</p>
               {item.tags && (

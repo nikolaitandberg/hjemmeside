@@ -5,58 +5,29 @@ En minimalistisk e-portefølje laget med Next.js for å vise frem min utdanning,
 ## Teknologier
 
 - Next.js 15
+- NextAuth.js
 - TypeScript
 - Tailwind CSS
+- Prismadb
 
-## Kom i gang
+## Utviklingsworkflow med Docker Compose
 
-1. Klon repoet
-2. Installer avhengigheter:
+For en optimal utviklingsopplevelse med hot-reloading, bruk `docker-compose.dev.yml`:
+
+1. Start utviklingsmiljøet:
+
    ```bash
-   npm install
+   docker compose -f docker-compose.dev.yml up
    ```
-3. Kjør utviklingsserveren:
+
+   Dette starter Next.js i utviklingsmodus med hot-reloading. Endringer i kildekoden reflekteres umiddelbart.
+
+2. Åpne [http://localhost:3000](http://localhost:3000) i nettleseren din.
+
+3. For å stoppe miljøet, trykk `ctrl+c` i terminalen eller bruk:
    ```bash
-   npm run dev
+   docker compose -f docker-compose.dev.yml down
    ```
-4. Åpne [http://localhost:3000](http://localhost:3000) in nettleseren din
-
-## Bygge og kjøre containeren
-
-1. Bygg docker imaget
-
-```bash
-docker build -t hjemmeside:latest .
-```
-
-2. Kjør docker containeren
-
-```bash
-docker run -p 3000:3000 hjemmeside:latest
-```
-
-3. Åpne nettleseren og gå til:
-
-```bash
-http://localhost:3000
-```
-
-4. Stopp containeren
-
-For å stoppe containeren trykk `ctrl+c` i terminalen der den kjører, eventuelt kan du liste opp containeren som kjører og stoppe rikti container med:
-
-```bash
-docker ps
-docker stop <container-id>
-```
-
-5. Valgfritt: Kjør i 'detached' modus
-
-```bash
-docker run -d -p 3000:3000 hjemmeside:latest
-```
-
-du kan stoppe den senere med `docker stop` kommandoen.
 
 ## Lisens
 
