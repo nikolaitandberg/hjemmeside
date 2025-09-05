@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Timeline from "./components/timeline";
+import Projects from "./components/projects";
 
 export default function Home() {
   return (
@@ -72,6 +73,9 @@ export default function Home() {
 
           <section className="col-span-1 md:col-span-2 mt-8 md:mt-0">
             <Timeline />
+            <div className="mt-16">
+              <Projects />
+            </div>
           </section>
         </div>
       </main>

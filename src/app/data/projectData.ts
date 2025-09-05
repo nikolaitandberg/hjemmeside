@@ -27,3 +27,4 @@ export const projectData: Project[] = [
     githubUrl: "https://github.com/nikolaitandberg/project2",
   },
 ];
+// This file is now unused. Projects are fetched from the database via API.

@@ -4,24 +4,22 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function GET() {
-  const timelineItems = await prisma.timelineItem.findMany({
-    orderBy: { date: "desc" },
-  });
-  return NextResponse.json(timelineItems);
+  const projects = await prisma.project.findMany();
+  return NextResponse.json(projects);
 }
 
 export async function PUT(request: NextRequest) {
   const data = await request.json();
   const { id, ...updateData } = data;
-  const item = await prisma.timelineItem.update({
+  const project = await prisma.project.update({
     where: { id },
     data: updateData,
   });
-  return NextResponse.json(item);
+  return NextResponse.json(project);
 }
 
 export async function DELETE(request: NextRequest) {
   const { id } = await request.json();
-  await prisma.timelineItem.delete({ where: { id } });
+  await prisma.project.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
