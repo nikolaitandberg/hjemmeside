@@ -15,9 +15,10 @@
     "bcryptjs": "^3.0.2",
     "next": "15.3.2",
     "next-auth": "^4.24.11",
-    "prisma": "^6.8.1",
+    "prisma": "^6.15.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

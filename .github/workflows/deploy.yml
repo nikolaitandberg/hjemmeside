@@ -37,13 +37,12 @@ jobs:
             # Pull the latest changes from GitHub
             git pull origin main
 
-            # Build the Docker container
-            docker build -t nikolaitandberg-hjemmeside .
+            # Stop and remove existing containers and networks defined in the compose file
+            docker compose down
 
-            # Stop and remove the old container (if it exists)
-            docker stop nikolaitandberg-hjemmeside || true
-            docker rm nikolaitandberg-hjemmeside || true
+            # Build and start containers in detached mode
+            docker compose up --build -d
 
-            # Run the new container in detached mode
-            docker run -d --name nikolaitandberg-hjemmeside -p 3000:3000 nikolaitandberg-hjemmeside
+            # Run Prisma migrations automatically
+            docker compose exec hjemmeside npx prisma migrate deploy
           EOF
