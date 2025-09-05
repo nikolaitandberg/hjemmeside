@@ -1,0 +1,4 @@
+services:
+  hjemmeside:
+    ports:
+      - "5555:5555" # Expose Prisma Studio only in development

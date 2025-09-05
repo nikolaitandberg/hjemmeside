@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 type Project = {
@@ -12,14 +12,25 @@ type Project = {
   liveUrl?: string;
 };
 
-type ProjectsProps = {
-  projects: Project[];
-};
+const Projects: React.FC = () => {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [activeProject, setActiveProject] = useState<string>("");
 
-const Projects: React.FC<ProjectsProps> = ({ projects }) => {
-  const [activeProject, setActiveProject] = useState<string>(
-    projects[0]?.id || "",
-  );
+  useEffect(() => {
+    async function fetchProjects() {
+      const res = await fetch("/api/projects");
+      if (res.ok) {
+        const data = await res.json();
+        setProjects(data);
+        setActiveProject(data[0]?.id || "");
+      }
+    }
+    fetchProjects();
+  }, []);
+
+  if (projects.length === 0) {
+    return <div className="w-full">Ingen prosjekter funnet.</div>;
+  }
 
   return (
     <div className="w-full">

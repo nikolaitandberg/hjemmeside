@@ -18,7 +18,6 @@ RUN \
   fi
 
 
-# Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -36,7 +35,6 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
-# Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
 
@@ -53,6 +51,11 @@ COPY --from=builder /app/public ./public
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+
+# Copy node_modules so prisma CLI and all dependencies are available
+COPY --from=builder /app/node_modules ./node_modules
+
 
 USER nextjs
 
