@@ -73,10 +73,10 @@ export default function Home() {
 
           <section className="col-span-1 md:col-span-2 mt-8 md:mt-0">
             <Timeline />
-            <div className="mt-16">
-              <Projects />
-            </div>
           </section>
+        </div>
+        <div className="w-full mt-16">
+          <Projects />
         </div>
       </main>
       <footer className="mt-12 pb-6 text-center text-sm text-foreground/70">
