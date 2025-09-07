@@ -31,6 +31,8 @@ model TimelineItem {
   tags        String[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  order       Int      @default(0)
+  archived    Boolean  @default(false)
 }
 
 model Project {
@@ -43,4 +45,6 @@ model Project {
   liveUrl      String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  order        Int      @default(0)
+  archived     Boolean  @default(false)
 }

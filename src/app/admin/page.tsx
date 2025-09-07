@@ -15,6 +15,8 @@ type Project = {
   liveUrl?: string | null;
   createdAt: Date;
   updatedAt: Date;
+  order: number;
+  archived: boolean;
 };
 
 type TimelineItem = {
@@ -25,6 +27,8 @@ type TimelineItem = {
   tags: string[];
   createdAt: Date;
   updatedAt: Date;
+  order: number;
+  archived: boolean;
 };
 
 const prisma = new PrismaClient();
@@ -44,10 +48,36 @@ export default async function AdminPage() {
   // Fetch projects and timeline items from the database
 
   const projects: Project[] = await prisma.project.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      technologies: true,
+      imageUrl: true,
+      githubUrl: true,
+      liveUrl: true,
+      createdAt: true,
+      updatedAt: true,
+      order: true,
+      archived: true,
+    },
+    where: { archived: false },
   });
   const timelineItems: TimelineItem[] = await prisma.timelineItem.findMany({
-    orderBy: { date: "desc" },
+    orderBy: [{ order: "asc" }, { date: "desc" }],
+    select: {
+      id: true,
+      date: true,
+      title: true,
+      description: true,
+      tags: true,
+      createdAt: true,
+      updatedAt: true,
+      order: true,
+      archived: true,
+    },
+    where: { archived: false },
   });
 
   return (
