@@ -32,6 +32,8 @@ type TimelineItem = {
   archived?: boolean;
 };
 
+import { useEffect } from "react";
+
 export default function AdminTabs({
   projects,
   timelineItems,
@@ -39,7 +41,12 @@ export default function AdminTabs({
   projects: Project[];
   timelineItems: TimelineItem[];
 }) {
-  const [tab, setTab] = useState("projects");
+  const [tab, setTab] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("adminTab") || "projects";
+    }
+    return "projects";
+  });
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingTimeline, setEditingTimeline] = useState<TimelineItem | null>(
     null,
@@ -48,6 +55,14 @@ export default function AdminTabs({
   const [timelineList, setTimelineList] =
     useState<TimelineItem[]>(timelineItems);
   const [isSaving, setIsSaving] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
+
+  // Persist tab selection in localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("adminTab", tab);
+    }
+  }, [tab]);
 
   // Archive/unarchive handler
   async function handleArchive(
@@ -62,7 +77,16 @@ export default function AdminTabs({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items: [{ id, archived }] }),
     });
-    window.location.reload();
+    if (type === "project") {
+      setProjectItems((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, archived } : p)),
+      );
+    } else {
+      setTimelineList((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, archived } : t)),
+      );
+    }
+    setIsSaving(false);
   }
 
   // Drag-and-drop handler
@@ -97,7 +121,6 @@ export default function AdminTabs({
       });
     }
     setIsSaving(false);
-    window.location.reload();
   }
   return (
     <div>
@@ -115,6 +138,17 @@ export default function AdminTabs({
           Timeline Items
         </button>
       </div>
+      <div className="mb-4">
+        <label className="inline-flex items-center">
+          <input
+            type="checkbox"
+            checked={showArchived}
+            onChange={() => setShowArchived((v) => !v)}
+            className="mr-2"
+          />
+          Show archived {tab === "projects" ? "projects" : "timeline items"}
+        </label>
+      </div>
       <DragDropContext onDragEnd={onDragEnd}>
         {tab === "projects" ? (
           <div>
@@ -126,75 +160,83 @@ export default function AdminTabs({
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
-                  {projectItems.map((project: Project, index: number) => (
-                    <Draggable
-                      key={project.id}
-                      draggableId={project.id}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <li
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className="mb-4 p-4 bg-white rounded shadow flex flex-col gap-2"
-                        >
-                          <div>
-                            <span className="font-bold text-lg">
-                              {project.title}
-                            </span>
-                            <span className="ml-2 text-gray-500">
-                              {project.description}
-                            </span>
-                            {project.archived && (
-                              <span className="ml-2 text-xs text-red-500">
-                                (Archived)
+                  {projectItems
+                    .filter((project) =>
+                      showArchived ? project.archived : !project.archived,
+                    )
+                    .map((project: Project, index: number) => (
+                      <Draggable
+                        key={project.id}
+                        draggableId={project.id}
+                        index={index}
+                      >
+                        {(provided) => (
+                          <li
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="mb-4 p-4 bg-white rounded shadow flex flex-col gap-2"
+                          >
+                            <div>
+                              <span className="font-bold text-lg">
+                                {project.title}
                               </span>
-                            )}
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary"
-                              onClick={() => setEditingProject(project)}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700"
-                              onClick={async () => {
-                                if (
-                                  confirm(`Delete project '${project.title}'?`)
-                                ) {
-                                  await fetch(`/api/projects`, {
-                                    method: "DELETE",
-                                    headers: {
-                                      "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify({ id: project.id }),
-                                  });
-                                  window.location.reload();
+                              <span className="ml-2 text-gray-500">
+                                {project.description}
+                              </span>
+                              {project.archived && (
+                                <span className="ml-2 text-xs text-red-500">
+                                  (Archived)
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary"
+                                onClick={() => setEditingProject(project)}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700"
+                                onClick={async () => {
+                                  if (
+                                    confirm(
+                                      `Delete project '${project.title}'?`,
+                                    )
+                                  ) {
+                                    await fetch(`/api/projects`, {
+                                      method: "DELETE",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({ id: project.id }),
+                                    });
+                                    setProjectItems((prev) =>
+                                      prev.filter((p) => p.id !== project.id),
+                                    );
+                                  }
+                                }}
+                              >
+                                Delete
+                              </button>
+                              <button
+                                className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-600"
+                                onClick={() =>
+                                  handleArchive(
+                                    "project",
+                                    project.id,
+                                    !project.archived,
+                                  )
                                 }
-                              }}
-                            >
-                              Delete
-                            </button>
-                            <button
-                              className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-600"
-                              onClick={() =>
-                                handleArchive(
-                                  "project",
-                                  project.id,
-                                  !project.archived,
-                                )
-                              }
-                            >
-                              {project.archived ? "Unarchive" : "Archive"}
-                            </button>
-                          </div>
-                        </li>
-                      )}
-                    </Draggable>
-                  ))}
+                              >
+                                {project.archived ? "Unarchive" : "Archive"}
+                              </button>
+                            </div>
+                          </li>
+                        )}
+                      </Draggable>
+                    ))}
                   {provided.placeholder}
                 </ul>
               )}
@@ -224,8 +266,10 @@ export default function AdminTabs({
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data),
                   });
+                  setProjectItems((prev) =>
+                    prev.map((p) => (p.id === data.id ? { ...p, ...data } : p)),
+                  );
                   setEditingProject(null);
-                  window.location.reload();
                 }}
               >
                 <h3 className="text-lg font-semibold mb-2">Edit Project</h3>
@@ -295,13 +339,14 @@ export default function AdminTabs({
                     githubUrl: getValue("githubUrl") || null,
                     liveUrl: getValue("liveUrl") || null,
                   };
-                  await fetch(`/api/projects`, {
+                  const res = await fetch(`/api/projects`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data),
                   });
+                  const newProject = await res.json();
+                  setProjectItems((prev) => [...prev, newProject]);
                   form.reset();
-                  window.location.reload();
                 }}
               >
                 <h3 className="text-lg font-semibold mb-2">Add New Project</h3>
@@ -357,80 +402,86 @@ export default function AdminTabs({
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
-                  {timelineList.map((item: TimelineItem, index: number) => (
-                    <Draggable
-                      key={item.id}
-                      draggableId={item.id}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <li
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className="mb-4 p-4 bg-white rounded shadow flex flex-col gap-2"
-                        >
-                          <div>
-                            <span className="font-bold text-lg">
-                              {item.title}
-                            </span>
-                            <span className="ml-2 text-gray-500">
-                              ({item.date})
-                            </span>
-                            <span className="ml-2 text-gray-500">
-                              {item.description}
-                            </span>
-                            {item.archived && (
-                              <span className="ml-2 text-xs text-red-500">
-                                (Archived)
+                  {timelineList
+                    .filter((item) =>
+                      showArchived ? item.archived : !item.archived,
+                    )
+                    .map((item: TimelineItem, index: number) => (
+                      <Draggable
+                        key={item.id}
+                        draggableId={item.id}
+                        index={index}
+                      >
+                        {(provided) => (
+                          <li
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="mb-4 p-4 bg-white rounded shadow flex flex-col gap-2"
+                          >
+                            <div>
+                              <span className="font-bold text-lg">
+                                {item.title}
                               </span>
-                            )}
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary"
-                              onClick={() => setEditingTimeline(item)}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700"
-                              onClick={async () => {
-                                if (
-                                  confirm(
-                                    `Delete timeline item '${item.title}'?`,
+                              <span className="ml-2 text-gray-500">
+                                ({item.date})
+                              </span>
+                              <span className="ml-2 text-gray-500">
+                                {item.description}
+                              </span>
+                              {item.archived && (
+                                <span className="ml-2 text-xs text-red-500">
+                                  (Archived)
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary"
+                                onClick={() => setEditingTimeline(item)}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700"
+                                onClick={async () => {
+                                  if (
+                                    confirm(
+                                      `Delete timeline item '${item.title}'?`,
+                                    )
+                                  ) {
+                                    await fetch(`/api/timeline`, {
+                                      method: "DELETE",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({ id: item.id }),
+                                    });
+                                    setTimelineList((prev) =>
+                                      prev.filter((t) => t.id !== item.id),
+                                    );
+                                  }
+                                }}
+                              >
+                                Delete
+                              </button>
+                              <button
+                                className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-600"
+                                onClick={() =>
+                                  handleArchive(
+                                    "timeline",
+                                    item.id,
+                                    !item.archived,
                                   )
-                                ) {
-                                  await fetch(`/api/timeline`, {
-                                    method: "DELETE",
-                                    headers: {
-                                      "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify({ id: item.id }),
-                                  });
-                                  window.location.reload();
                                 }
-                              }}
-                            >
-                              Delete
-                            </button>
-                            <button
-                              className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-600"
-                              onClick={() =>
-                                handleArchive(
-                                  "timeline",
-                                  item.id,
-                                  !item.archived,
-                                )
-                              }
-                            >
-                              {item.archived ? "Unarchive" : "Archive"}
-                            </button>
-                          </div>
-                        </li>
-                      )}
-                    </Draggable>
-                  ))}
+                              >
+                                {item.archived ? "Unarchive" : "Archive"}
+                              </button>
+                            </div>
+                          </li>
+                        )}
+                      </Draggable>
+                    ))}
                   {provided.placeholder}
                 </ul>
               )}
@@ -458,8 +509,10 @@ export default function AdminTabs({
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data),
                   });
+                  setTimelineList((prev) =>
+                    prev.map((t) => (t.id === data.id ? { ...t, ...data } : t)),
+                  );
                   setEditingTimeline(null);
-                  window.location.reload();
                 }}
               >
                 <h3 className="text-lg font-semibold mb-2">
@@ -519,13 +572,14 @@ export default function AdminTabs({
                       .split(",")
                       .map((t: string) => t.trim()),
                   };
-                  await fetch(`/api/timeline`, {
+                  const res = await fetch(`/api/timeline`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data),
                   });
+                  const newTimeline = await res.json();
+                  setTimelineList((prev) => [...prev, newTimeline]);
                   form.reset();
-                  window.location.reload();
                 }}
               >
                 <h3 className="text-lg font-semibold mb-2">
@@ -539,7 +593,7 @@ export default function AdminTabs({
                 />
                 <input
                   name="date"
-                  placeholder="Date (YYYY-MM-DD)"
+                  placeholder="Date (e.g. Aug. 2023 - Aug. 2024)"
                   className="border p-2 rounded"
                   required
                 />

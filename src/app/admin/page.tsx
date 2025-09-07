@@ -62,7 +62,6 @@ export default async function AdminPage() {
       order: true,
       archived: true,
     },
-    where: { archived: false },
   });
   const timelineItems: TimelineItem[] = await prisma.timelineItem.findMany({
     orderBy: [{ order: "asc" }, { date: "desc" }],
@@ -77,7 +76,6 @@ export default async function AdminPage() {
       order: true,
       archived: true,
     },
-    where: { archived: false },
   });
 
   return (
