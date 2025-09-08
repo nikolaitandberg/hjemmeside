@@ -279,11 +279,12 @@ export default function AdminTabs({
                   className="border p-2 rounded"
                   required
                 />
-                <input
+                <textarea
                   name="description"
                   defaultValue={editingProject.description}
-                  className="border p-2 rounded"
+                  className="border p-2 rounded min-h-[100px]"
                   required
+                  rows={4}
                 />
                 <input
                   name="technologies"
@@ -356,11 +357,12 @@ export default function AdminTabs({
                   className="border p-2 rounded"
                   required
                 />
-                <input
+                <textarea
                   name="description"
                   placeholder="Description"
-                  className="border p-2 rounded"
+                  className="border p-2 rounded min-h-[100px]"
                   required
+                  rows={4}
                 />
                 <input
                   name="technologies"
@@ -530,11 +532,12 @@ export default function AdminTabs({
                   className="border p-2 rounded"
                   required
                 />
-                <input
+                <textarea
                   name="description"
                   defaultValue={editingTimeline.description}
-                  className="border p-2 rounded"
+                  className="border p-2 rounded min-h-[100px]"
                   required
+                  rows={4}
                 />
                 <input
                   name="tags"
@@ -597,11 +600,12 @@ export default function AdminTabs({
                   className="border p-2 rounded"
                   required
                 />
-                <input
+                <textarea
                   name="description"
                   placeholder="Description"
                   className="border p-2 rounded"
                   required
+                  rows={4}
                 />
                 <input
                   name="tags"
