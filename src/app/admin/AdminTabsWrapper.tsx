@@ -1,6 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
-import type { Project, TimelineItem } from "./AdminTabs";
+import type { Project, TimelineItem } from "@/types";
 
 const AdminTabs = dynamic(() => import("./AdminTabs"), { ssr: false });
 

@@ -1,38 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   DragDropContext,
   Droppable,
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
+import type { Project, TimelineItem } from "@/types";
+
 export type { Project, TimelineItem };
-
-type Project = {
-  id: string;
-  title: string;
-  description: string;
-  technologies: string[];
-  imageUrl?: string | null;
-  githubUrl?: string | null;
-  liveUrl?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  archived?: boolean;
-};
-
-type TimelineItem = {
-  id: string;
-  date: string;
-  title: string;
-  description: string;
-  tags: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  archived?: boolean;
-};
-
-import { useEffect } from "react";
 
 export default function AdminTabs({
   projects,

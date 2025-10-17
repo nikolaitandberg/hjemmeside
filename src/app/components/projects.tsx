@@ -1,16 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-
-type Project = {
-  id: string;
-  title: string;
-  description: string;
-  technologies: string[];
-  imageUrl?: string;
-  githubUrl?: string;
-  liveUrl?: string;
-};
+import type { Project } from "@/types";
 
 const Projects: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);

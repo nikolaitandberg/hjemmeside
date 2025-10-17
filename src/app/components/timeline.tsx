@@ -1,13 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-
-type TimelineItem = {
-  id?: string | number;
-  date: string;
-  title: string;
-  description: string;
-  tags?: string[];
-};
+import type { TimelineItem } from "@/types";
 
 function Timeline() {
   const [items, setItems] = useState<TimelineItem[]>([]);
