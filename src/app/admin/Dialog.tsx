@@ -25,7 +25,19 @@ export default function Dialog({
     } else {
       dialog.close();
     }
-  }, [isOpen]);
+
+    // Handle Escape key press
+    const handleCancel = (e: Event) => {
+      e.preventDefault();
+      onClose();
+    };
+
+    dialog.addEventListener("cancel", handleCancel);
+
+    return () => {
+      dialog.removeEventListener("cancel", handleCancel);
+    };
+  }, [isOpen, onClose]);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
     const dialog = dialogRef.current;
