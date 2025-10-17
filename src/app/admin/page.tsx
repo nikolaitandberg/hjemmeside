@@ -3,6 +3,7 @@ import { authOptions } from "@/app/api/auth/authOptions";
 import Link from "next/link";
 import { PrismaClient } from "@prisma/client";
 import AdminTabsWrapper from "./AdminTabsWrapper";
+import LogoutButton from "./LogoutButton";
 import type { Project, TimelineItem } from "@/types";
 
 const prisma = new PrismaClient();
@@ -54,7 +55,10 @@ export default async function AdminPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-2">Admin page</h1>
+      <div className="flex justify-between items-center mb-2">
+        <h1 className="text-3xl font-bold">Admin page</h1>
+        <LogoutButton />
+      </div>
       <p className="mb-6 text-gray-600">Welcome, {session.user?.email}</p>
       <hr className="my-8" />
       <AdminTabsWrapper projects={projects} timelineItems={timelineItems} />
