@@ -21,7 +21,7 @@ function Timeline() {
   return (
     <div className="w-full">
       <h2 className="text-2xl font-bold mb-6">Tidslinje</h2>
-      <div className="w-full max-w-3xl mx-auto my-8 flex flex-col items-center">
+      <div className="w-full max-w-3xl">
         {items.map((item, index) => (
           <div key={item.id ?? index} className="relative w-full">
             {/* Absolutely positioned line that goes through the margin */}

@@ -42,9 +42,9 @@ export default function Home() {
             <Image
               src="/images/diggn5998-min.jpg"
               alt="Pressefoto av Nikolai Tandberg fra brystet og opp, blå genser, rødt nøkkel-bånd rundt halsen"
-              width={250}
-              height={300}
-              className="max-w-full"
+              width={416.7}
+              height={278.8}
+              className="max-w-full shadow-lg rounded-lg"
             />
             <p className="text-xs mt-2">
               foto:{" "}
