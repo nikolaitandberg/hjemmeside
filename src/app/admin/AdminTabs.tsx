@@ -8,6 +8,7 @@ import {
 } from "@hello-pangea/dnd";
 import type { Project, TimelineItem } from "@/types";
 import Dialog from "./Dialog";
+import Button from "@/app/components/Button";
 
 export type { Project, TimelineItem };
 
@@ -283,19 +284,11 @@ export default function AdminTabs({
         </label>
 
         {tab === "projects" ? (
-          <button
-            onClick={() => openProjectDialog()}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
-          >
-            + Add Project
-          </button>
+          <Button onClick={() => openProjectDialog()}>+ Add Project</Button>
         ) : (
-          <button
-            onClick={() => openTimelineDialog()}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
-          >
+          <Button onClick={() => openTimelineDialog()}>
             + Add Timeline Item
-          </button>
+          </Button>
         )}
       </div>
 
@@ -341,14 +334,16 @@ export default function AdminTabs({
                               )}
                             </div>
                             <div className="flex gap-2">
-                              <button
-                                className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary"
+                              <Button
+                                variant="primary"
+                                className="px-3 py-1"
                                 onClick={() => openProjectDialog(project)}
                               >
                                 Edit
-                              </button>
-                              <button
-                                className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700"
+                              </Button>
+                              <Button
+                                variant="danger"
+                                className="px-3 py-1"
                                 onClick={() =>
                                   openDeleteDialog(
                                     "project",
@@ -358,9 +353,10 @@ export default function AdminTabs({
                                 }
                               >
                                 Delete
-                              </button>
-                              <button
-                                className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-600"
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                className="px-3 py-1"
                                 onClick={() =>
                                   handleArchive(
                                     "project",
@@ -370,7 +366,7 @@ export default function AdminTabs({
                                 }
                               >
                                 {project.archived ? "Unarchive" : "Archive"}
-                              </button>
+                              </Button>
                             </div>
                           </li>
                         )}
@@ -425,14 +421,16 @@ export default function AdminTabs({
                               )}
                             </div>
                             <div className="flex gap-2">
-                              <button
-                                className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary"
+                              <Button
+                                variant="primary"
+                                className="px-3 py-1"
                                 onClick={() => openTimelineDialog(item)}
                               >
                                 Edit
-                              </button>
-                              <button
-                                className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700"
+                              </Button>
+                              <Button
+                                variant="danger"
+                                className="px-3 py-1"
                                 onClick={() =>
                                   openDeleteDialog(
                                     "timeline",
@@ -442,9 +440,10 @@ export default function AdminTabs({
                                 }
                               >
                                 Delete
-                              </button>
-                              <button
-                                className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-600"
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                className="px-3 py-1"
                                 onClick={() =>
                                   handleArchive(
                                     "timeline",
@@ -454,7 +453,7 @@ export default function AdminTabs({
                                 }
                               >
                                 {item.archived ? "Unarchive" : "Archive"}
-                              </button>
+                              </Button>
                             </div>
                           </li>
                         )}
@@ -522,19 +521,12 @@ export default function AdminTabs({
             className="border p-2 rounded"
           />
           <div className="flex gap-2 justify-end">
-            <button
-              type="button"
-              onClick={closeProjectDialog}
-              className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
-            >
+            <Button type="button" variant="ghost" onClick={closeProjectDialog}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
-            >
+            </Button>
+            <Button type="submit" variant="primary">
               {editingProject ? "Update" : "Create"}
-            </button>
+            </Button>
           </div>
         </form>
       </Dialog>
@@ -579,19 +571,12 @@ export default function AdminTabs({
             className="border p-2 rounded"
           />
           <div className="flex gap-2 justify-end">
-            <button
-              type="button"
-              onClick={closeTimelineDialog}
-              className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
-            >
+            <Button type="button" variant="ghost" onClick={closeTimelineDialog}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
-            >
+            </Button>
+            <Button type="submit" variant="primary">
               {editingTimeline ? "Update" : "Create"}
-            </button>
+            </Button>
           </div>
         </form>
       </Dialog>
@@ -609,18 +594,12 @@ export default function AdminTabs({
           </p>
           <p className="text-sm text-gray-600">This action cannot be undone.</p>
           <div className="flex gap-2 justify-end">
-            <button
-              onClick={closeDeleteDialog}
-              className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
-            >
+            <Button variant="ghost" onClick={closeDeleteDialog}>
               Cancel
-            </button>
-            <button
-              onClick={confirmDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-            >
+            </Button>
+            <Button variant="danger" onClick={confirmDelete}>
               Delete
-            </button>
+            </Button>
           </div>
         </div>
       </Dialog>
