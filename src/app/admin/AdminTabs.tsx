@@ -7,6 +7,7 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import type { Project, TimelineItem } from "@/types";
+import Dialog from "./Dialog";
 
 export type { Project, TimelineItem };
 
@@ -33,12 +34,79 @@ export default function AdminTabs({
   const [isSaving, setIsSaving] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
 
+  // Dialog states
+  const [showProjectDialog, setShowProjectDialog] = useState(false);
+  const [showTimelineDialog, setShowTimelineDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    type: "project" | "timeline";
+    id: string;
+    title: string;
+  } | null>(null);
+
   // Persist tab selection in localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("adminTab", tab);
     }
   }, [tab]);
+
+  // Open dialogs for create/edit
+  const openProjectDialog = (project: Project | null = null) => {
+    setEditingProject(project);
+    setShowProjectDialog(true);
+  };
+
+  const openTimelineDialog = (item: TimelineItem | null = null) => {
+    setEditingTimeline(item);
+    setShowTimelineDialog(true);
+  };
+
+  const closeProjectDialog = () => {
+    setShowProjectDialog(false);
+    // Small delay to allow dialog animation before clearing state
+    setTimeout(() => setEditingProject(null), 100);
+  };
+
+  const closeTimelineDialog = () => {
+    setShowTimelineDialog(false);
+    // Small delay to allow dialog animation before clearing state
+    setTimeout(() => setEditingTimeline(null), 100);
+  };
+
+  const openDeleteDialog = (
+    type: "project" | "timeline",
+    id: string,
+    title: string,
+  ) => {
+    setDeleteTarget({ type, id, title });
+    setShowDeleteDialog(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setShowDeleteDialog(false);
+    setTimeout(() => setDeleteTarget(null), 100);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    const url =
+      deleteTarget.type === "project" ? "/api/projects" : "/api/timeline";
+    await fetch(url, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: deleteTarget.id }),
+    });
+
+    if (deleteTarget.type === "project") {
+      setProjectItems((prev) => prev.filter((p) => p.id !== deleteTarget.id));
+    } else {
+      setTimelineList((prev) => prev.filter((t) => t.id !== deleteTarget.id));
+    }
+
+    closeDeleteDialog();
+  };
 
   // Archive/unarchive handler
   async function handleArchive(
@@ -98,6 +166,94 @@ export default function AdminTabs({
     }
     setIsSaving(false);
   }
+
+  // Project form submit handler
+  const handleProjectSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const getValue = (name: string) =>
+      (form.elements.namedItem(name) as HTMLInputElement)?.value || "";
+
+    const data = {
+      ...(editingProject && { id: editingProject.id }),
+      title: getValue("title"),
+      description: getValue("description"),
+      technologies: getValue("technologies")
+        .split(",")
+        .map((t: string) => t.trim()),
+      imageUrl: getValue("imageUrl") || null,
+      githubUrl: getValue("githubUrl") || null,
+      liveUrl: getValue("liveUrl") || null,
+    };
+
+    if (editingProject) {
+      // Update existing
+      await fetch("/api/projects", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      setProjectItems((prev) =>
+        prev.map((p) => (p.id === editingProject.id ? { ...p, ...data } : p)),
+      );
+    } else {
+      // Create new
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const newProject = await res.json();
+      setProjectItems((prev) => [...prev, newProject]);
+    }
+
+    closeProjectDialog();
+    form.reset();
+  };
+
+  // Timeline form submit handler
+  const handleTimelineSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const getValue = (name: string) =>
+      (form.elements.namedItem(name) as HTMLInputElement)?.value || "";
+
+    const data = {
+      ...(editingTimeline && { id: editingTimeline.id }),
+      title: getValue("title"),
+      date: getValue("date"),
+      description: getValue("description"),
+      tags: getValue("tags")
+        .split(",")
+        .map((t: string) => t.trim())
+        .filter((t) => t),
+    };
+
+    if (editingTimeline) {
+      // Update existing
+      await fetch("/api/timeline", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      setTimelineList((prev) =>
+        prev.map((t) => (t.id === editingTimeline.id ? { ...t, ...data } : t)),
+      );
+    } else {
+      // Create new
+      const res = await fetch("/api/timeline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const newTimeline = await res.json();
+      setTimelineList((prev) => [...prev, newTimeline]);
+    }
+
+    closeTimelineDialog();
+    form.reset();
+  };
+
   return (
     <div>
       <div className="flex gap-4 mb-8">
@@ -114,7 +270,8 @@ export default function AdminTabs({
           Timeline Items
         </button>
       </div>
-      <div className="mb-4">
+
+      <div className="mb-4 flex justify-between items-center">
         <label className="inline-flex items-center">
           <input
             type="checkbox"
@@ -124,7 +281,24 @@ export default function AdminTabs({
           />
           Show archived {tab === "projects" ? "projects" : "timeline items"}
         </label>
+
+        {tab === "projects" ? (
+          <button
+            onClick={() => openProjectDialog()}
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
+          >
+            + Add Project
+          </button>
+        ) : (
+          <button
+            onClick={() => openTimelineDialog()}
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
+          >
+            + Add Timeline Item
+          </button>
+        )}
       </div>
+
       <DragDropContext onDragEnd={onDragEnd}>
         {tab === "projects" ? (
           <div>
@@ -169,30 +343,19 @@ export default function AdminTabs({
                             <div className="flex gap-2">
                               <button
                                 className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary"
-                                onClick={() => setEditingProject(project)}
+                                onClick={() => openProjectDialog(project)}
                               >
                                 Edit
                               </button>
                               <button
                                 className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700"
-                                onClick={async () => {
-                                  if (
-                                    confirm(
-                                      `Delete project '${project.title}'?`,
-                                    )
-                                  ) {
-                                    await fetch(`/api/projects`, {
-                                      method: "DELETE",
-                                      headers: {
-                                        "Content-Type": "application/json",
-                                      },
-                                      body: JSON.stringify({ id: project.id }),
-                                    });
-                                    setProjectItems((prev) =>
-                                      prev.filter((p) => p.id !== project.id),
-                                    );
-                                  }
-                                }}
+                                onClick={() =>
+                                  openDeleteDialog(
+                                    "project",
+                                    project.id,
+                                    project.title,
+                                  )
+                                }
                               >
                                 Delete
                               </button>
@@ -217,158 +380,6 @@ export default function AdminTabs({
                 </ul>
               )}
             </Droppable>
-            {editingProject ? (
-              <form
-                className="bg-gray-50 p-4 rounded shadow flex flex-col gap-4 mb-8"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const form = e.target as HTMLFormElement;
-                  const getValue = (name: string) =>
-                    (form.elements.namedItem(name) as HTMLInputElement)
-                      ?.value || "";
-                  const data = {
-                    id: editingProject.id,
-                    title: getValue("title"),
-                    description: getValue("description"),
-                    technologies: getValue("technologies")
-                      .split(",")
-                      .map((t: string) => t.trim()),
-                    imageUrl: getValue("imageUrl") || null,
-                    githubUrl: getValue("githubUrl") || null,
-                    liveUrl: getValue("liveUrl") || null,
-                  };
-                  await fetch(`/api/projects`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data),
-                  });
-                  setProjectItems((prev) =>
-                    prev.map((p) => (p.id === data.id ? { ...p, ...data } : p)),
-                  );
-                  setEditingProject(null);
-                }}
-              >
-                <h3 className="text-lg font-semibold mb-2">Edit Project</h3>
-                <input
-                  name="title"
-                  defaultValue={editingProject.title}
-                  className="border p-2 rounded"
-                  required
-                />
-                <textarea
-                  name="description"
-                  defaultValue={editingProject.description}
-                  className="border p-2 rounded min-h-[100px]"
-                  required
-                  rows={4}
-                />
-                <input
-                  name="technologies"
-                  defaultValue={editingProject.technologies.join(", ")}
-                  className="border p-2 rounded"
-                  required
-                />
-                <input
-                  name="imageUrl"
-                  defaultValue={editingProject.imageUrl || ""}
-                  className="border p-2 rounded"
-                />
-                <input
-                  name="githubUrl"
-                  defaultValue={editingProject.githubUrl || ""}
-                  className="border p-2 rounded"
-                />
-                <input
-                  name="liveUrl"
-                  defaultValue={editingProject.liveUrl || ""}
-                  className="border p-2 rounded"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
-                >
-                  Update Project
-                </button>
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-gray-300 text-black rounded mt-2"
-                  onClick={() => setEditingProject(null)}
-                >
-                  Cancel
-                </button>
-              </form>
-            ) : (
-              <form
-                className="bg-gray-50 p-4 rounded shadow flex flex-col gap-4 mb-8"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const form = e.target as HTMLFormElement;
-                  const getValue = (name: string) =>
-                    (form.elements.namedItem(name) as HTMLInputElement)
-                      ?.value || "";
-                  const data = {
-                    title: getValue("title"),
-                    description: getValue("description"),
-                    technologies: getValue("technologies")
-                      .split(",")
-                      .map((t: string) => t.trim()),
-                    imageUrl: getValue("imageUrl") || null,
-                    githubUrl: getValue("githubUrl") || null,
-                    liveUrl: getValue("liveUrl") || null,
-                  };
-                  const res = await fetch(`/api/projects`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data),
-                  });
-                  const newProject = await res.json();
-                  setProjectItems((prev) => [...prev, newProject]);
-                  form.reset();
-                }}
-              >
-                <h3 className="text-lg font-semibold mb-2">Add New Project</h3>
-                <input
-                  name="title"
-                  placeholder="Title"
-                  className="border p-2 rounded"
-                  required
-                />
-                <textarea
-                  name="description"
-                  placeholder="Description"
-                  className="border p-2 rounded min-h-[100px]"
-                  required
-                  rows={4}
-                />
-                <input
-                  name="technologies"
-                  placeholder="Technologies (comma separated)"
-                  className="border p-2 rounded"
-                  required
-                />
-                <input
-                  name="imageUrl"
-                  placeholder="Image URL"
-                  className="border p-2 rounded"
-                />
-                <input
-                  name="githubUrl"
-                  placeholder="GitHub URL"
-                  className="border p-2 rounded"
-                />
-                <input
-                  name="liveUrl"
-                  placeholder="Live URL"
-                  className="border p-2 rounded"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
-                >
-                  Add Project
-                </button>
-              </form>
-            )}
           </div>
         ) : (
           <div>
@@ -416,30 +427,19 @@ export default function AdminTabs({
                             <div className="flex gap-2">
                               <button
                                 className="px-3 py-1 bg-primary text-white rounded hover:bg-secondary"
-                                onClick={() => setEditingTimeline(item)}
+                                onClick={() => openTimelineDialog(item)}
                               >
                                 Edit
                               </button>
                               <button
                                 className="px-3 py-1 bg-quaternary text-white rounded hover:bg-red-700"
-                                onClick={async () => {
-                                  if (
-                                    confirm(
-                                      `Delete timeline item '${item.title}'?`,
-                                    )
-                                  ) {
-                                    await fetch(`/api/timeline`, {
-                                      method: "DELETE",
-                                      headers: {
-                                        "Content-Type": "application/json",
-                                      },
-                                      body: JSON.stringify({ id: item.id }),
-                                    });
-                                    setTimelineList((prev) =>
-                                      prev.filter((t) => t.id !== item.id),
-                                    );
-                                  }
-                                }}
+                                onClick={() =>
+                                  openDeleteDialog(
+                                    "timeline",
+                                    item.id,
+                                    item.title,
+                                  )
+                                }
                               >
                                 Delete
                               </button>
@@ -464,141 +464,167 @@ export default function AdminTabs({
                 </ul>
               )}
             </Droppable>
-            {editingTimeline ? (
-              <form
-                className="bg-gray-50 p-4 rounded shadow flex flex-col gap-4 mb-8"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const form = e.target as HTMLFormElement;
-                  const getValue = (name: string) =>
-                    (form.elements.namedItem(name) as HTMLInputElement)
-                      ?.value || "";
-                  const data = {
-                    id: editingTimeline.id,
-                    title: getValue("title"),
-                    date: getValue("date"),
-                    description: getValue("description"),
-                    tags: getValue("tags")
-                      .split(",")
-                      .map((t: string) => t.trim()),
-                  };
-                  await fetch(`/api/timeline`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data),
-                  });
-                  setTimelineList((prev) =>
-                    prev.map((t) => (t.id === data.id ? { ...t, ...data } : t)),
-                  );
-                  setEditingTimeline(null);
-                }}
-              >
-                <h3 className="text-lg font-semibold mb-2">
-                  Edit Timeline Item
-                </h3>
-                <input
-                  name="title"
-                  defaultValue={editingTimeline.title}
-                  className="border p-2 rounded"
-                  required
-                />
-                <input
-                  name="date"
-                  defaultValue={editingTimeline.date}
-                  className="border p-2 rounded"
-                  required
-                />
-                <textarea
-                  name="description"
-                  defaultValue={editingTimeline.description}
-                  className="border p-2 rounded min-h-[100px]"
-                  required
-                  rows={4}
-                />
-                <input
-                  name="tags"
-                  defaultValue={editingTimeline.tags.join(", ")}
-                  className="border p-2 rounded"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
-                >
-                  Update Timeline Item
-                </button>
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-gray-300 text-black rounded mt-2"
-                  onClick={() => setEditingTimeline(null)}
-                >
-                  Cancel
-                </button>
-              </form>
-            ) : (
-              <form
-                className="bg-gray-50 p-4 rounded shadow flex flex-col gap-4 mb-8"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const form = e.target as HTMLFormElement;
-                  const getValue = (name: string) =>
-                    (form.elements.namedItem(name) as HTMLInputElement)
-                      ?.value || "";
-                  const data = {
-                    title: getValue("title"),
-                    date: getValue("date"),
-                    description: getValue("description"),
-                    tags: getValue("tags")
-                      .split(",")
-                      .map((t: string) => t.trim()),
-                  };
-                  const res = await fetch(`/api/timeline`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data),
-                  });
-                  const newTimeline = await res.json();
-                  setTimelineList((prev) => [...prev, newTimeline]);
-                  form.reset();
-                }}
-              >
-                <h3 className="text-lg font-semibold mb-2">
-                  Add New Timeline Item
-                </h3>
-                <input
-                  name="title"
-                  placeholder="Title"
-                  className="border p-2 rounded"
-                  required
-                />
-                <input
-                  name="date"
-                  placeholder="Date (e.g. Aug. 2023 - Aug. 2024)"
-                  className="border p-2 rounded"
-                  required
-                />
-                <textarea
-                  name="description"
-                  placeholder="Description"
-                  className="border p-2 rounded"
-                  required
-                  rows={4}
-                />
-                <input
-                  name="tags"
-                  placeholder="Tags (comma separated)"
-                  className="border p-2 rounded"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
-                >
-                  Add Timeline Item
-                </button>
-              </form>
-            )}
           </div>
         )}
       </DragDropContext>
+
+      {/* Project Dialog */}
+      <Dialog
+        isOpen={showProjectDialog}
+        onClose={closeProjectDialog}
+        title={editingProject ? "Edit Project" : "Add New Project"}
+      >
+        <form onSubmit={handleProjectSubmit} className="flex flex-col gap-4">
+          <input
+            key={`title-${editingProject?.id || "new"}`}
+            name="title"
+            placeholder="Title"
+            defaultValue={editingProject?.title || ""}
+            className="border p-2 rounded"
+            required
+          />
+          <textarea
+            key={`description-${editingProject?.id || "new"}`}
+            name="description"
+            placeholder="Description"
+            defaultValue={editingProject?.description || ""}
+            className="border p-2 rounded min-h-[100px]"
+            required
+            rows={4}
+          />
+          <input
+            key={`technologies-${editingProject?.id || "new"}`}
+            name="technologies"
+            placeholder="Technologies (comma separated)"
+            defaultValue={editingProject?.technologies.join(", ") || ""}
+            className="border p-2 rounded"
+            required
+          />
+          <input
+            key={`imageUrl-${editingProject?.id || "new"}`}
+            name="imageUrl"
+            placeholder="Image URL"
+            defaultValue={editingProject?.imageUrl || ""}
+            className="border p-2 rounded"
+          />
+          <input
+            key={`githubUrl-${editingProject?.id || "new"}`}
+            name="githubUrl"
+            placeholder="GitHub URL"
+            defaultValue={editingProject?.githubUrl || ""}
+            className="border p-2 rounded"
+          />
+          <input
+            key={`liveUrl-${editingProject?.id || "new"}`}
+            name="liveUrl"
+            placeholder="Live URL"
+            defaultValue={editingProject?.liveUrl || ""}
+            className="border p-2 rounded"
+          />
+          <div className="flex gap-2 justify-end">
+            <button
+              type="button"
+              onClick={closeProjectDialog}
+              className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
+            >
+              {editingProject ? "Update" : "Create"}
+            </button>
+          </div>
+        </form>
+      </Dialog>
+
+      {/* Timeline Dialog */}
+      <Dialog
+        isOpen={showTimelineDialog}
+        onClose={closeTimelineDialog}
+        title={editingTimeline ? "Edit Timeline Item" : "Add New Timeline Item"}
+      >
+        <form onSubmit={handleTimelineSubmit} className="flex flex-col gap-4">
+          <input
+            key={`title-${editingTimeline?.id || "new"}`}
+            name="title"
+            placeholder="Title"
+            defaultValue={editingTimeline?.title || ""}
+            className="border p-2 rounded"
+            required
+          />
+          <input
+            key={`date-${editingTimeline?.id || "new"}`}
+            name="date"
+            placeholder="Date (e.g. Aug. 2023 - Aug. 2024)"
+            defaultValue={editingTimeline?.date || ""}
+            className="border p-2 rounded"
+            required
+          />
+          <textarea
+            key={`description-${editingTimeline?.id || "new"}`}
+            name="description"
+            placeholder="Description"
+            defaultValue={editingTimeline?.description || ""}
+            className="border p-2 rounded min-h-[100px]"
+            required
+            rows={4}
+          />
+          <input
+            key={`tags-${editingTimeline?.id || "new"}`}
+            name="tags"
+            placeholder="Tags (comma separated)"
+            defaultValue={editingTimeline?.tags.join(", ") || ""}
+            className="border p-2 rounded"
+          />
+          <div className="flex gap-2 justify-end">
+            <button
+              type="button"
+              onClick={closeTimelineDialog}
+              className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary text-white rounded hover:bg-secondary"
+            >
+              {editingTimeline ? "Update" : "Create"}
+            </button>
+          </div>
+        </form>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        isOpen={showDeleteDialog}
+        onClose={closeDeleteDialog}
+        title="Confirm Delete"
+      >
+        <div className="flex flex-col gap-4">
+          <p>
+            Are you sure you want to delete{" "}
+            <strong>{deleteTarget?.title}</strong>?
+          </p>
+          <p className="text-sm text-gray-600">This action cannot be undone.</p>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={closeDeleteDialog}
+              className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Dialog>
+
       {isSaving && (
         <div className="fixed bottom-4 right-4 bg-yellow-200 px-4 py-2 rounded shadow">
           Saving...
