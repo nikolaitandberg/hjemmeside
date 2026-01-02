@@ -1,9 +1,7 @@
 name: Deploy to Server
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -35,7 +33,8 @@ jobs:
             cd hjemmeside
 
             # Pull the latest changes from GitHub
-            git pull origin main
+            git fetch
+            git reset --hard origin/main
 
             # Stop and remove existing containers and networks defined in the compose file
             docker compose down
