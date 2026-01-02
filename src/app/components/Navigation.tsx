@@ -75,7 +75,9 @@ export default function Navigation() {
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
-            title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            title={
+              theme === "light" ? "Switch to dark mode" : "Switch to light mode"
+            }
             className="inline-flex items-center justify-center p-2 rounded-lg
                        transition-colors duration-300 hover:text-secondary
                        focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
@@ -86,7 +88,9 @@ export default function Navigation() {
               <Sun className="h-6 w-6 sm:h-7 sm:w-7" />
             )}
             <span className="sr-only">
-              {theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+              {theme === "light"
+                ? "Switch to dark mode"
+                : "Switch to light mode"}
             </span>
           </button>
         </div>
