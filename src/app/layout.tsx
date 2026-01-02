@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 const robotoMono = Roboto_Mono({
   variable: "--font-roboto-mono",
@@ -19,7 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="nb">
-      <body className={`${robotoMono.variable} antialiased`}>{children}</body>
+      <body className={`${robotoMono.variable} antialiased`}>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

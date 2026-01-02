@@ -1,8 +1,9 @@
 "use client";
 
-import { Github, Mail, Linkedin, Menu, X } from "lucide-react";
+import { Github, Mail, Linkedin, Menu, X, Sun, Moon } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
+import { useTheme } from "./ThemeProvider";
 
 interface NavLink {
   href: string;
@@ -13,6 +14,7 @@ interface NavLink {
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const navLinks: NavLink[] = [
     {
@@ -69,6 +71,24 @@ export default function Navigation() {
               </a>
             );
           })}
+          {/* Theme toggle button */}
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            className="inline-flex items-center justify-center p-2 rounded-lg
+                       transition-colors duration-300 hover:text-secondary
+                       focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
+          >
+            {theme === "light" ? (
+              <Moon className="h-6 w-6 sm:h-7 sm:w-7" />
+            ) : (
+              <Sun className="h-6 w-6 sm:h-7 sm:w-7" />
+            )}
+            <span className="sr-only">
+              {theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            </span>
+          </button>
         </div>
 
         {/* Mobile hamburger menu button */}
@@ -122,6 +142,30 @@ export default function Navigation() {
               </a>
             );
           })}
+          {/* Theme toggle button in mobile menu */}
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            style={{
+              transitionDelay: isMenuOpen ? `${navLinks.length * 50}ms` : "0ms",
+            }}
+            className={`flex items-center gap-3 p-3 rounded-lg
+                       transition-all duration-300 hover:text-secondary hover:bg-foreground/5
+                       focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2
+                       ${isMenuOpen ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"}`}
+          >
+            {theme === "light" ? (
+              <>
+                <Moon className="h-5 w-5" />
+                <span className="text-base">Dark mode</span>
+              </>
+            ) : (
+              <>
+                <Sun className="h-5 w-5" />
+                <span className="text-base">Light mode</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>
