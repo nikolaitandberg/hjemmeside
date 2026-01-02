@@ -1,32 +1,14 @@
 import Image from "next/image";
+import Navigation from "./components/Navigation";
 import Timeline from "./components/timeline";
 import Projects from "./components/projects";
 
 export default function Home() {
   return (
-    <div className="min-h-screen mx-auto w-11/12 md:w-5/6 lg:w-4/6">
-      <header className="flex flex-col sm:flex-row h-auto sm:h-10 justify-between items-center gap-2 sm:gap-0 my-4">
-        <a
-          href="https://github.com/nikolaitandberg"
-          className="transition-colors duration-300 ease-in-out hover:text-secondary"
-        >
-          github
-        </a>
-        <a
-          href="mailto:nikolai.tandbe@gmail.com"
-          className="transition-colors duration-300 ease-in-out hover:text-secondary"
-        >
-          nikolai.tandbe@gmail.com
-        </a>
-        <a
-          href="https://linkedin.com/in/nikolaitandberg"
-          className="transition-colors duration-300 ease-in-out hover:text-secondary"
-        >
-          linkedin
-        </a>
-      </header>
+    <div className="min-h-screen">
+      <Navigation />
 
-      <main className="mx-auto mt-8 sm:mt-16 md:mt-24 w-full">
+      <main className="mx-auto w-11/12 md:w-5/6 lg:w-4/6 mt-8 sm:mt-12 md:mt-16">
         <h1 className="text-3xl sm:text-4xl font-bold">
           Hei! Jeg heter Nikolai
         </h1>
@@ -58,15 +40,6 @@ export default function Home() {
             <ul className="mt-6 md:mt-12 self-start">
               <li>Navn: Nikolai Tandberg</li>
               <li>Fødselsdato: 21.12.04</li>
-              <li>
-                E-post:{" "}
-                <a
-                  href="mailto:nikolai.tandbe@gmail.com"
-                  className="transition-colors duration-300 ease-in-out hover:text-secondary"
-                >
-                  nikolai.tandbe@gmail.com
-                </a>
-              </li>
               <li>Sted: Trondheim</li>
             </ul>
           </section>
