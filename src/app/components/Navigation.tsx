@@ -113,16 +113,16 @@ export default function Navigation() {
 
       {/* Mobile dropdown menu */}
       <div
-        className={`sm:hidden mx-auto w-11/12 md:w-5/6 lg:w-4/6 mt-2 overflow-hidden transition-all duration-300 ease-in-out ${
-          isMenuOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
-        }`}
+        className={`sm:hidden mx-auto w-11/12 md:w-5/6 lg:w-4/6 mt-2 transition-all duration-300 ease-in-out
+                    bg-background/80 backdrop-blur-md backdrop-saturate-150
+                    border border-foreground/10
+                    rounded-lg
+                    shadow-sm
+                    overflow-hidden
+                    ${isMenuOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}`}
       >
         <div
-          className="bg-background/80 backdrop-blur-md backdrop-saturate-150
-                     border border-foreground/10
-                     rounded-lg
-                     shadow-sm
-                     p-4
+          className="p-4
                      flex flex-col gap-2"
         >
           {navLinks.map((link, index) => {
