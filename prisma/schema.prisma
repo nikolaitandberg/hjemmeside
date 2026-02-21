@@ -1,16 +1,13 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
-   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -20,7 +17,7 @@ model User {
   password  String
   name      String?
   createdAt DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 }
 
 model TimelineItem {
@@ -28,7 +25,7 @@ model TimelineItem {
   date        String
   title       String
   description String
-  tags        String[]
+  tags        String   @default("[]")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   order       Int      @default(0)
@@ -36,10 +33,10 @@ model TimelineItem {
 }
 
 model Project {
-  id           String  @id @default(cuid())
+  id           String   @id @default(cuid())
   title        String
   description  String
-  technologies String[]
+  technologies String   @default("[]")
   imageUrl     String?
   githubUrl    String?
   liveUrl      String?
