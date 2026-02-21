@@ -1,4 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import prisma from "@/utils/db";
 import { parseJsonArray, toJsonArray } from "@/utils/jsonArray";
 
@@ -18,6 +20,10 @@ export async function GET() {
 
 // Bulk update order or archive status (PATCH)
 export async function PATCH(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const data = await request.json();
   // data: { items: [{id, order, archived?}] }
   if (!Array.isArray(data.items))
@@ -37,6 +43,10 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const data = await request.json();
   const { id, technologies, ...updateData } = data;
   const project = await prisma.project.update({
@@ -55,12 +65,20 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { id } = await request.json();
   await prisma.project.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
 
 export async function POST(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { technologies, ...data } = await request.json();
   const project = await prisma.project.create({
     data: { ...data, technologies: toJsonArray(technologies ?? []) },
