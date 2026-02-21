@@ -38,6 +38,9 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
+# Copy schema and migrations so prisma migrate deploy can run at startup
+COPY --from=builder /app/prisma ./prisma
+
 # Persistent volume mount point for the SQLite file
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
@@ -46,4 +49,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 USER nextjs
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
