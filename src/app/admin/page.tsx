@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/authOptions";
-import Link from "next/link";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
 import prisma from "@/utils/db";
 import { parseJsonArray } from "@/utils/jsonArray";
 import AdminTabsWrapper from "./AdminTabsWrapper";
@@ -9,17 +9,7 @@ import type { Project, TimelineItem } from "@/types";
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
-  if (!session) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "2rem" }}>
-        <h2>Access Denied</h2>
-        <p>You must be logged in to view this page.</p>
-        <Link href="/admin/login">Go to Login</Link>
-      </div>
-    );
-  }
-
-  // Fetch projects and timeline items from the database
+  if (!session) redirect("/admin/login");
 
   const rawProjects = await prisma.project.findMany({
     orderBy: [{ order: "asc" }, { createdAt: "desc" }],
@@ -66,7 +56,7 @@ export default async function AdminPage() {
         <h1 className="text-3xl font-bold">Admin page</h1>
         <LogoutButton />
       </div>
-      <p className="mb-6 text-gray-600">Welcome, {session.user?.email}</p>
+      <p className="mb-6 text-foreground/60">Welcome, {session.user?.email}</p>
       <hr className="my-8" />
       <AdminTabsWrapper projects={projects} timelineItems={timelineItems} />
     </div>
