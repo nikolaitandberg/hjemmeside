@@ -9,39 +9,31 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up SSH access
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          # Add your server's SSH key fingerprint to known_hosts
-          ssh-keyscan -H -p ${{ secrets.SSH_PORT}} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Debug SSH key
-        run: |
-          ls -la ~/.ssh/
-          cat ~/.ssh/id_ed25519 | head -1
-          echo "Key file exists: $(test -f ~/.ssh/id_ed25519 && echo Yes || echo No)"
+          ssh-keyscan -H -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to Server
         run: |
-          # SSH into the server and run deployment commands
           ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            # Navigate to your app directory
             cd hjemmeside
 
-            # Pull the latest changes from GitHub
             git fetch
             git reset --hard origin/main
 
-            # Stop and remove existing containers and networks defined in the compose file
             docker compose down
 
-            # Build and start containers in detached mode
             docker compose up --build -d
 
-            # Run Prisma migrations automatically
+            echo "Waiting for container to be ready..."
+            sleep 10
+
             docker compose exec hjemmeside npx prisma migrate deploy
+
+            docker compose ps
           EOF
