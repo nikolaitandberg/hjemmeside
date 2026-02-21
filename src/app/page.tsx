@@ -2,8 +2,31 @@ import Image from "next/image";
 import Navigation from "./components/Navigation";
 import Timeline from "./components/timeline";
 import Projects from "./components/projects";
+import prisma from "@/utils/db";
+import { parseJsonArray } from "@/utils/jsonArray";
+import type { Project, TimelineItem } from "@/types";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const rawProjects = await prisma.project.findMany({
+    where: { archived: false },
+    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+  });
+  const projects: Project[] = rawProjects.map((p) => ({
+    ...p,
+    technologies: parseJsonArray(p.technologies),
+  }));
+
+  const rawTimelineItems = await prisma.timelineItem.findMany({
+    where: { archived: false },
+    orderBy: [{ order: "asc" }, { date: "desc" }],
+  });
+  const timelineItems: TimelineItem[] = rawTimelineItems.map((t) => ({
+    ...t,
+    tags: parseJsonArray(t.tags),
+  }));
+
   return (
     <div className="min-h-screen">
       <Navigation />
@@ -45,11 +68,11 @@ export default function Home() {
           </section>
 
           <section className="col-span-1 md:col-span-2 mt-8 md:mt-0">
-            <Timeline />
+            <Timeline items={timelineItems} />
           </section>
         </div>
         <div className="w-full mt-16">
-          <Projects />
+          <Projects projects={projects} />
         </div>
       </main>
       <footer className="mt-12 pb-6 text-center text-sm text-foreground/70">

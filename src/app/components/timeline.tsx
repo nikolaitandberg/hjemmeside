@@ -1,22 +1,12 @@
-"use client";
-import React, { useEffect, useState } from "react";
 import type { TimelineItem } from "@/types";
 
-function Timeline() {
-  const [items, setItems] = useState<TimelineItem[]>([]);
-
-  useEffect(() => {
-    fetch("/api/timeline")
-      .then((res) => res.json())
-      .then(setItems);
-  }, []);
-
+export default function Timeline({ items }: { items: TimelineItem[] }) {
   return (
     <div className="w-full">
       <h2 className="text-2xl font-bold mb-6">Tidslinje</h2>
       <div className="w-full max-w-3xl">
         {items.map((item, index) => (
-          <div key={item.id ?? index} className="relative w-full">
+          <div key={item.id} className="relative w-full">
             {/* Absolutely positioned line that goes through the margin */}
             <div className="flex flex-row w-full">
               {/* Dot/line column */}
@@ -57,5 +47,3 @@ function Timeline() {
     </div>
   );
 }
-
-export default Timeline;
