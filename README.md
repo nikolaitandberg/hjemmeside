@@ -1,235 +1,80 @@
-# Personlig hjemmeside/e-portefølje
+# hjemmeside
 
-En minimalistisk e-portefølje laget med Next.js for å vise frem min utdanning, erfaring og mine prosjekter. Applikasjonen har et adminpanel for enkel administrering av innhold.
+Personal e-portfolio with an admin panel. Next.js + SQLite (via Prisma), deployed with Docker.
 
-## 🚀 Teknologier
+## Local dev
 
-### Frontend
-
-- **Next.js 15** - React-rammeverk med Turbopack
-- **React 19** - Brukergrensesnitt
-- **TypeScript** - Type-sikkerhet
-- **Tailwind CSS 4** - Styling
-- **@hello-pangea/dnd** - Drag-and-drop funksjonalitet
-
-### Backend & Database
-
-- **Prisma** - Database ORM
-- **PostgreSQL** - Database
-- **NextAuth.js** - Autentisering
-- **bcryptjs** - Passord-hashing
-
-### Verktøy
-
-- **ESLint** - Kodekvalitet
-- **Prettier** - Kodeformatering
-- **Docker** - Containerisering
-
-## 📋 Krav før du kjører applikasjonen
-
-- **Node.js** (versjon 20 eller nyere)
-- **npm** eller **yarn**
-- **PostgreSQL** database (kan kjøres med Docker)
-- **Docker** og **Docker Compose** (valgfritt, for database)
-
-## ⚙️ Oppsett
-
-### 1. Klon prosjektet
-
-```bash
-git clone https://github.com/nikolaitandberg/hjemmeside.git
-cd hjemmeside
-```
-
-### 2. Installer avhengigheter
-
-```bash
+```sh
 npm install
+
+# First run only — create the SQLite DB and tables
+npx prisma migrate dev
+
+# Create admin user
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=yourpassword node scripts/create-admin.mjs
+
+npm run dev   # → http://localhost:3000
 ```
 
-### 3. Sett opp miljøvariabler
-
-Opprett en `.env`-fil i rotmappen med følgende innhold:
+`.env` (gitignored, already present locally):
 
 ```env
-# Database
-DATABASE_URL="postgresql://admin:admin@localhost:5432/hjemmeside_dev?schema=public"
-
-# NextAuth
+DATABASE_URL="file:./data/hjemmeside-dev.db"
 NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=<generer-en-sikker-secret>
+NEXTAUTH_SECRET=<secret>
 ```
 
-For å generere en sikker `NEXTAUTH_SECRET`:
+Prisma Studio: `npx prisma studio` → `http://localhost:5555`
 
-```bash
-openssl rand -base64 32
+Schema: [`prisma/schema.prisma`](prisma/schema.prisma)
+
+---
+
+## Docker dev
+
+Builds the production image with source bind-mounted, plus Prisma Studio as a sidecar.
+
+```sh
+docker compose -f docker-compose.dev.yml up --build
 ```
 
-### 4. Start PostgreSQL database
+See [`docker-compose.dev.yml`](docker-compose.dev.yml).
 
-**Med Docker compose:**
+---
 
-lag en docker-compose.yml, kan se slik ut:
+## Production
 
-```yaml
-services:
-  # PostgreSQL
-  postgres:
-    image: postgres
-    container_name: postgres
-    restart: unless-stopped
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    environment:
-      PGPASSWORD: admin
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: hjemmeside_dev
-    networks:
-      - postgres-network
-  # Adminer
-  adminer:
-    image: adminer
-    container_name: adminer
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    environment:
-      ADMINER_DEFAULT_SERVER: postgres
-    networks:
-      - postgres-network
+Deployed via GitHub Actions ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) — trigger manually from the Actions tab.
 
-networks:
-  postgres-network:
-    driver: bridge
-
-volumes:
-  postgres-data:
-    driver: local
+The workflow SSHs into the server and runs:
+```
+git reset --hard origin/main → docker compose up --build -d → prisma migrate deploy
 ```
 
-Deretter kjører du denne kommandoen i samme mappe som compose-filen ligger i:
+**Before the first deploy**, create `.env` on the server:
 
-```bash
-docker-compose up -d postgres
+```env
+DATABASE_URL="file:/app/data/hjemmeside.db"
+NEXTAUTH_URL=https://yourdomain.com
+NEXTAUTH_SECRET=<secret>   # openssl rand -base64 32
 ```
 
-**Eller kjør din egen PostgreSQL-instans** og oppdater `DATABASE_URL` i `.env`
+**After the first deploy**, create the admin user:
 
-### 5. Kjør database-migrasjoner
-
-```bash
-npx prisma migrate dev
+```sh
+docker compose exec -e ADMIN_EMAIL=you@example.com -e ADMIN_PASSWORD=yourpassword hjemmeside node scripts/create-admin.mjs
 ```
 
-Dette oppretter databasetabellene for prosjekter, tidslinjer og brukere.
+SQLite data persists in a named Docker volume (`sqlite_data`). See [`docker-compose.yml`](docker-compose.yml) and [`Dockerfile`](Dockerfile).
 
-### 6. Opprett en admin-bruker
+---
 
-Du må legge til en bruker direkte i databasen. Først, hash passordet ditt:
+## Schema changes
 
-```bash
-node -e "const bcrypt = require('bcryptjs'); console.log(bcrypt.hashSync('ditt-passord', 10));"
+```sh
+npx prisma migrate dev --name describe_change
 ```
 
-Deretter, legg til brukeren i databasen:
+## License
 
-```sql
-INSERT INTO "User" (id, email, password, name, "createdAt", "updatedAt")
-VALUES (gen_random_uuid(), 'din@epost.no', '<hashet-passord>', 'Ditt Navn', NOW(), NOW());
-```
-
-## 🏃 Kom i gang
-
-### Utviklingsmodus
-
-```bash
-npm run dev
-```
-
-Applikasjonen kjører nå på [http://localhost:3000](http://localhost:3000)
-
-### Produksjonsbygg
-
-```bash
-npm run build
-npm start
-```
-
-### Andre nyttige kommandoer
-
-```bash
-# Linting
-npm run lint
-
-# Formatering med Prettier
-npm run prettier
-
-# Åpne Prisma Studio (database GUI)
-npx prisma studio
-```
-
-## 📁 Prosjektstruktur
-
-```
-├── src/
-│   ├── app/              # Next.js app router
-│   │   ├── admin/        # Admin-panel
-│   │   ├── api/          # API-ruter
-│   │   └── components/   # React-komponenter
-│   ├── types/            # TypeScript type-definisjoner
-│   └── utils/            # Hjelpefunksjoner
-├── prisma/
-│   ├── schema.prisma     # Database-skjema
-│   └── migrations/       # Database-migrasjoner
-├── public/               # Statiske filer
-└── docker-compose.yml    # Docker-konfigurasjon
-```
-
-## 🔐 Admin-panel
-
-Adminpanelet er tilgjengelig på `/admin` og krever innlogging.
-
-**Funksjoner:**
-
-- ✏️ Opprett, rediger og slett prosjekter
-- 📅 Opprett, rediger og slett tidslinjeoppføringer
-- 🔄 Drag-and-drop for å endre rekkefølge
-- 📦 Arkiver elementer uten å slette dem
-- 🔒 Sikret med NextAuth.js
-
-## 🎨 Funksjoner
-
-- 📱 Responsiv design
-- 🌓 Minimalistisk og profesjonell
-- ⚡ Rask lasting med Next.js 15 og Turbopack
-- 🔒 Sikker autentisering
-- 📊 Dynamisk innhold fra database
-- 🎯 Type-sikker med TypeScript
-
-## 🛠️ Utvikling
-
-### Database-endringer
-
-Når du gjør endringer i `prisma/schema.prisma`:
-
-```bash
-npx prisma migrate dev --name beskrivelse_av_endring
-npx prisma generate
-```
-
-### Kode-kvalitet
-
-Prosjektet bruker ESLint og Prettier for å sikre konsistent kodekvalitet:
-
-```bash
-npm run lint       # Kjør linting
-npm run prettier   # Formater kode
-```
-
-## 📝 Lisens
-
-MIT - se [LICENSE](LICENSE) for mer informasjon
+[MIT](LICENSE)
