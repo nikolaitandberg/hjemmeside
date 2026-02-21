@@ -15,10 +15,11 @@ export default function Button({
 
   const variantStyles = {
     primary: "bg-primary text-white hover:bg-secondary",
-    secondary: "bg-gray-400 text-white hover:bg-gray-600",
+    secondary: "bg-foreground/30 text-foreground hover:bg-foreground/50",
     danger: "bg-red-600 text-white hover:bg-red-700",
-    ghost: "bg-gray-300 text-black hover:bg-gray-400",
-    outline: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
+    ghost: "bg-foreground/10 text-foreground hover:bg-foreground/20",
+    outline:
+      "border border-foreground/20 bg-background text-foreground hover:bg-foreground/5",
   };
 
   return (

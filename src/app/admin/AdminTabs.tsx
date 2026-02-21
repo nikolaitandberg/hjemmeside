@@ -259,13 +259,13 @@ export default function AdminTabs({
     <div>
       <div className="flex gap-4 mb-8">
         <button
-          className={`px-4 py-2 rounded-t ${tab === "projects" ? "bg-primary text-white" : "bg-gray-200 text-gray-700"}`}
+          className={`px-4 py-2 rounded-t ${tab === "projects" ? "bg-primary text-white" : "bg-foreground/10 text-foreground"}`}
           onClick={() => setTab("projects")}
         >
           Projects
         </button>
         <button
-          className={`px-4 py-2 rounded-t ${tab === "timeline" ? "bg-primary text-white" : "bg-gray-200 text-gray-700"}`}
+          className={`px-4 py-2 rounded-t ${tab === "timeline" ? "bg-primary text-white" : "bg-foreground/10 text-foreground"}`}
           onClick={() => setTab("timeline")}
         >
           Timeline Items
@@ -318,13 +318,13 @@ export default function AdminTabs({
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className="mb-4 p-4 bg-white rounded shadow flex flex-col gap-2"
+                            className="mb-4 p-4 bg-background rounded shadow flex flex-col gap-2"
                           >
                             <div>
                               <span className="font-bold text-lg">
                                 {project.title}
                               </span>
-                              <span className="ml-2 text-gray-500">
+                              <span className="ml-2 text-foreground/60">
                                 {project.description}
                               </span>
                               {project.archived && (
@@ -402,16 +402,16 @@ export default function AdminTabs({
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className="mb-4 p-4 bg-white rounded shadow flex flex-col gap-2"
+                            className="mb-4 p-4 bg-background rounded shadow flex flex-col gap-2"
                           >
                             <div>
                               <span className="font-bold text-lg">
                                 {item.title}
                               </span>
-                              <span className="ml-2 text-gray-500">
+                              <span className="ml-2 text-foreground/60">
                                 ({item.date})
                               </span>
-                              <span className="ml-2 text-gray-500">
+                              <span className="ml-2 text-foreground/60">
                                 {item.description}
                               </span>
                               {item.archived && (
@@ -592,7 +592,9 @@ export default function AdminTabs({
             Are you sure you want to delete{" "}
             <strong>{deleteTarget?.title}</strong>?
           </p>
-          <p className="text-sm text-gray-600">This action cannot be undone.</p>
+          <p className="text-sm text-foreground/60">
+            This action cannot be undone.
+          </p>
           <div className="flex gap-2 justify-end">
             <Button variant="ghost" onClick={closeDeleteDialog}>
               Cancel
