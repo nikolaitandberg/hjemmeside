@@ -7,5 +7,8 @@ export async function POST(req: NextRequest) {
   const project = await prisma.project.create({
     data: { ...data, technologies: toJsonArray(technologies ?? []) },
   });
-  return NextResponse.json({ ...project, technologies: parseJsonArray(project.technologies) });
+  return NextResponse.json({
+    ...project,
+    technologies: parseJsonArray(project.technologies),
+  });
 }

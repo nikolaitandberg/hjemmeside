@@ -60,5 +60,8 @@ export async function POST(request: NextRequest) {
   const timelineItem = await prisma.timelineItem.create({
     data: { ...data, tags: toJsonArray(tags ?? []) },
   });
-  return NextResponse.json({ ...timelineItem, tags: parseJsonArray(timelineItem.tags) });
+  return NextResponse.json({
+    ...timelineItem,
+    tags: parseJsonArray(timelineItem.tags),
+  });
 }

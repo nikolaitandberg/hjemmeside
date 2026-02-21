@@ -9,7 +9,10 @@ export async function GET() {
     orderBy: [{ order: "asc" }, { createdAt: "desc" }],
   });
   return NextResponse.json(
-    projects.map((p) => ({ ...p, technologies: parseJsonArray(p.technologies) })),
+    projects.map((p) => ({
+      ...p,
+      technologies: parseJsonArray(p.technologies),
+    })),
   );
 }
 
@@ -40,10 +43,15 @@ export async function PUT(request: NextRequest) {
     where: { id },
     data: {
       ...updateData,
-      ...(technologies !== undefined ? { technologies: toJsonArray(technologies) } : {}),
+      ...(technologies !== undefined
+        ? { technologies: toJsonArray(technologies) }
+        : {}),
     },
   });
-  return NextResponse.json({ ...project, technologies: parseJsonArray(project.technologies) });
+  return NextResponse.json({
+    ...project,
+    technologies: parseJsonArray(project.technologies),
+  });
 }
 
 export async function DELETE(request: NextRequest) {
@@ -57,5 +65,8 @@ export async function POST(request: NextRequest) {
   const project = await prisma.project.create({
     data: { ...data, technologies: toJsonArray(technologies ?? []) },
   });
-  return NextResponse.json({ ...project, technologies: parseJsonArray(project.technologies) });
+  return NextResponse.json({
+    ...project,
+    technologies: parseJsonArray(project.technologies),
+  });
 }

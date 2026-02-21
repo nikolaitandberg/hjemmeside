@@ -47,6 +47,7 @@ See [`docker-compose.dev.yml`](docker-compose.dev.yml).
 Deployed via GitHub Actions ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) — trigger manually from the Actions tab.
 
 The workflow SSHs into the server and runs:
+
 ```
 git reset --hard origin/main → docker compose up --build -d → prisma migrate deploy
 ```
