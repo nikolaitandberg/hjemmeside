@@ -1,50 +1,19 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: hjemmeside_dev
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app_network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   hjemmeside:
     build: .
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      NEXTAUTH_URL: ${NEXTAUTH_URL}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+    env_file: .env
     ports:
       - "3000:3000"
     volumes:
+      - sqlite_data:/app/data
       - ./prisma:/app/prisma
-    networks:
-      - app_network
-
-  adminer:
-    image: adminer
-    ports:
-      - "8080:8080"
-    networks:
-      - app_network
-    depends_on:
-      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
 
 volumes:
-  postgres_data:
-
-networks:
-  app_network:
-    driver: bridge
+  sqlite_data:
