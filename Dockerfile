@@ -37,6 +37,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+# effect is a dependency of @prisma/config (required by Prisma 6.x CLI)
+COPY --from=builder /app/node_modules/effect ./node_modules/effect
 
 # Copy schema and migrations so prisma migrate deploy can run at startup
 COPY --from=builder /app/prisma ./prisma
