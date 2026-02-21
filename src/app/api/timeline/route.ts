@@ -1,27 +1,30 @@
 import { NextResponse, NextRequest } from "next/server";
-
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import prisma from "@/utils/db";
+import { parseJsonArray, toJsonArray } from "@/utils/jsonArray";
 
 // Get all non-archived timeline items, ordered by 'order' then date
 export async function GET() {
-  // Use type assertion to bypass type error if Prisma Client is not up to date
   const timelineItems = await prisma.timelineItem.findMany({
     where: { archived: false },
     orderBy: [{ order: "asc" }, { date: "desc" }],
   });
-  return NextResponse.json(timelineItems);
+  return NextResponse.json(
+    timelineItems.map((t) => ({ ...t, tags: parseJsonArray(t.tags) })),
+  );
 }
 
 // Update a timeline item (PUT)
 export async function PUT(request: NextRequest) {
   const data = await request.json();
-  const { id, ...updateData } = data;
+  const { id, tags, ...updateData } = data;
   const item = await prisma.timelineItem.update({
     where: { id },
-    data: updateData,
+    data: {
+      ...updateData,
+      ...(tags !== undefined ? { tags: toJsonArray(tags) } : {}),
+    },
   });
-  return NextResponse.json(item);
+  return NextResponse.json({ ...item, tags: parseJsonArray(item.tags) });
 }
 
 // Bulk update order or archive status (PATCH)
@@ -53,7 +56,9 @@ export async function DELETE(request: NextRequest) {
 
 // Create a timeline item
 export async function POST(request: NextRequest) {
-  const data = await request.json();
-  const timelineItem = await prisma.timelineItem.create({ data });
-  return NextResponse.json(timelineItem);
+  const { tags, ...data } = await request.json();
+  const timelineItem = await prisma.timelineItem.create({
+    data: { ...data, tags: toJsonArray(tags ?? []) },
+  });
+  return NextResponse.json({ ...timelineItem, tags: parseJsonArray(timelineItem.tags) });
 }

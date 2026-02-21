@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/utils/db";
+import { parseJsonArray, toJsonArray } from "@/utils/jsonArray";
 
 export async function POST(req: NextRequest) {
-  const data = await req.json();
-  const project = await prisma.project.create({ data });
-  return NextResponse.json(project);
+  const { technologies, ...data } = await req.json();
+  const project = await prisma.project.create({
+    data: { ...data, technologies: toJsonArray(technologies ?? []) },
+  });
+  return NextResponse.json({ ...project, technologies: parseJsonArray(project.technologies) });
 }
