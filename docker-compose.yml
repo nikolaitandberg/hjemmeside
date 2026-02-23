@@ -8,6 +8,8 @@ services:
   hjemmeside:
     build: .
     env_file: .env
+    environment:
+      DATABASE_URL: "file:/app/data/hjemmeside.db"
     ports:
       - "3000:3000"
     volumes:
