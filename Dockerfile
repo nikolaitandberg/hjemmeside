@@ -45,7 +45,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 # Persistent volume mount point for the SQLite file
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
   CMD wget -qO- http://localhost:3000/api/health || exit 1
 
 USER nextjs
