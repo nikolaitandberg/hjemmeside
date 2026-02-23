@@ -39,6 +39,9 @@ COPY --from=builder /app/node_modules ./node_modules
 # Copy schema and migrations so prisma migrate deploy can run at startup
 COPY --from=builder /app/prisma ./prisma
 
+# Copy utility scripts (e.g. create-admin.mjs)
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+
 # Persistent volume mount point for the SQLite file
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
