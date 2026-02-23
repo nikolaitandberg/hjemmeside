@@ -1,3 +1,9 @@
+# Note: the image intentionally includes full node_modules (not just the
+# Next.js standalone subset) so that `prisma migrate deploy` can run at
+# container startup. The Prisma 6.x CLI has a deep transitive dependency
+# tree that is not part of the standalone output, and cherry-picking
+# individual packages breaks on every Prisma update. Image size (~400 MB
+# extra) is an acceptable trade-off for a personal site.
 services:
   hjemmeside:
     build: .

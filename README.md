@@ -49,8 +49,10 @@ Deployed via GitHub Actions ([`.github/workflows/deploy.yml`](.github/workflows/
 The workflow SSHs into the server and runs:
 
 ```
-git reset --hard origin/main → docker compose up --build -d → prisma migrate deploy
+git reset --hard origin/main → docker compose up --build -d
 ```
+
+`prisma migrate deploy` runs automatically inside the container before the app starts (see `CMD` in [`Dockerfile`](Dockerfile)), so no separate migration step is needed after deploy.
 
 **Before the first deploy**, create `.env` on the server:
 
@@ -67,6 +69,8 @@ docker compose exec -e ADMIN_EMAIL=you@example.com -e ADMIN_PASSWORD=yourpasswor
 ```
 
 SQLite data persists in a named Docker volume (`sqlite_data`). See [`docker-compose.yml`](docker-compose.yml) and [`Dockerfile`](Dockerfile).
+
+> **Image size note:** the Docker image intentionally copies the full `node_modules` (not just the Next.js standalone subset). This is required because the Prisma 6.x CLI has a deep transitive dependency tree absent from the standalone output, and cherry-picking packages breaks on every Prisma upgrade. The image is larger (~400 MB extra) but maintenance-free.
 
 ---
 
