@@ -57,14 +57,15 @@ export default function Dialog({
     <dialog
       ref={dialogRef}
       onClick={handleBackdropClick}
-      className="rounded-lg shadow-xl backdrop:bg-black/50 p-0 max-w-2xl w-full fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0"
+      className="rounded-lg shadow-xl backdrop:bg-black/50 p-0 max-w-2xl w-full fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 bg-background border border-foreground/10"
     >
-      <div className="bg-white rounded-lg">
-        <div className="flex justify-between items-center p-6 border-b">
+      <div className="bg-background text-foreground rounded-lg">
+        <div className="flex justify-between items-center p-6 border-b border-foreground/10">
           <h2 className="text-2xl font-bold">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+            className="text-foreground/50 hover:text-foreground cursor-pointer text-2xl leading-none"
+            aria-label="Close dialog"
           >
             ×
           </button>

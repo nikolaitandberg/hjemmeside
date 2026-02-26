@@ -9,8 +9,25 @@ import {
 import type { Project, TimelineItem } from "@/types";
 import Dialog from "./Dialog";
 import Button from "@/app/components/Button";
+import ProjectCard from "./ProjectCard";
+import TimelineCard from "./TimelineCard";
+import ProjectDialog from "./ProjectDialog";
+import TimelineDialog from "./TimelineDialog";
 
 export type { Project, TimelineItem };
+
+function GripIcon() {
+  return (
+    <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
+      <circle cx="2" cy="2" r="1.5" />
+      <circle cx="8" cy="2" r="1.5" />
+      <circle cx="2" cy="8" r="1.5" />
+      <circle cx="8" cy="8" r="1.5" />
+      <circle cx="2" cy="14" r="1.5" />
+      <circle cx="8" cy="14" r="1.5" />
+    </svg>
+  );
+}
 
 export default function AdminTabs({
   projects,
@@ -25,19 +42,24 @@ export default function AdminTabs({
     }
     return "projects";
   });
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [editingTimeline, setEditingTimeline] = useState<TimelineItem | null>(
-    null,
-  );
+
   const [projectItems, setProjectItems] = useState<Project[]>(projects);
   const [timelineList, setTimelineList] =
     useState<TimelineItem[]>(timelineItems);
   const [isSaving, setIsSaving] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
 
-  // Dialog states
+  // Project dialog
   const [showProjectDialog, setShowProjectDialog] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+
+  // Timeline dialog
   const [showTimelineDialog, setShowTimelineDialog] = useState(false);
+  const [editingTimeline, setEditingTimeline] = useState<TimelineItem | null>(
+    null,
+  );
+
+  // Delete dialog
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{
     type: "project" | "timeline";
@@ -45,36 +67,49 @@ export default function AdminTabs({
     title: string;
   } | null>(null);
 
-  // Persist tab selection in localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("adminTab", tab);
     }
   }, [tab]);
 
-  // Open dialogs for create/edit
+  // --- Project dialog ---
   const openProjectDialog = (project: Project | null = null) => {
     setEditingProject(project);
     setShowProjectDialog(true);
   };
+  const closeProjectDialog = () => {
+    setShowProjectDialog(false);
+    setTimeout(() => setEditingProject(null), 100);
+  };
+  const handleProjectSaved = (project: Project, isNew: boolean) => {
+    if (isNew) {
+      setProjectItems((prev) => [...prev, project]);
+    } else {
+      setProjectItems((prev) =>
+        prev.map((p) => (p.id === project.id ? project : p)),
+      );
+    }
+  };
 
+  // --- Timeline dialog ---
   const openTimelineDialog = (item: TimelineItem | null = null) => {
     setEditingTimeline(item);
     setShowTimelineDialog(true);
   };
-
-  const closeProjectDialog = () => {
-    setShowProjectDialog(false);
-    // Small delay to allow dialog animation before clearing state
-    setTimeout(() => setEditingProject(null), 100);
-  };
-
   const closeTimelineDialog = () => {
     setShowTimelineDialog(false);
-    // Small delay to allow dialog animation before clearing state
     setTimeout(() => setEditingTimeline(null), 100);
   };
+  const handleTimelineSaved = (item: TimelineItem, isNew: boolean) => {
+    if (isNew) {
+      setTimelineList((prev) => [...prev, item]);
+    } else {
+      setTimelineList((prev) => prev.map((t) => (t.id === item.id ? item : t)));
+    }
+  };
 
+  // --- Delete dialog ---
   const openDeleteDialog = (
     type: "project" | "timeline",
     id: string,
@@ -83,15 +118,12 @@ export default function AdminTabs({
     setDeleteTarget({ type, id, title });
     setShowDeleteDialog(true);
   };
-
   const closeDeleteDialog = () => {
     setShowDeleteDialog(false);
     setTimeout(() => setDeleteTarget(null), 100);
   };
-
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-
     const url =
       deleteTarget.type === "project" ? "/api/projects" : "/api/timeline";
     await fetch(url, {
@@ -99,17 +131,15 @@ export default function AdminTabs({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: deleteTarget.id }),
     });
-
     if (deleteTarget.type === "project") {
       setProjectItems((prev) => prev.filter((p) => p.id !== deleteTarget.id));
     } else {
       setTimelineList((prev) => prev.filter((t) => t.id !== deleteTarget.id));
     }
-
     closeDeleteDialog();
   };
 
-  // Archive/unarchive handler
+  // --- Archive ---
   async function handleArchive(
     type: "project" | "timeline",
     id: string,
@@ -134,7 +164,7 @@ export default function AdminTabs({
     setIsSaving(false);
   }
 
-  // Drag-and-drop handler
+  // --- Drag-and-drop ---
   async function onDragEnd(result: DropResult) {
     if (!result.destination) return;
     setIsSaving(true);
@@ -143,7 +173,6 @@ export default function AdminTabs({
       const [removed] = reordered.splice(result.source.index, 1);
       reordered.splice(result.destination.index, 0, removed);
       setProjectItems(reordered);
-      // Persist new order
       await fetch("/api/projects", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -156,7 +185,6 @@ export default function AdminTabs({
       const [removed] = reordered.splice(result.source.index, 1);
       reordered.splice(result.destination.index, 0, removed);
       setTimelineList(reordered);
-      // Persist new order
       await fetch("/api/timeline", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -168,121 +196,36 @@ export default function AdminTabs({
     setIsSaving(false);
   }
 
-  // Project form submit handler
-  const handleProjectSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const getValue = (name: string) =>
-      (form.elements.namedItem(name) as HTMLInputElement)?.value || "";
-
-    const data = {
-      ...(editingProject && { id: editingProject.id }),
-      title: getValue("title"),
-      description: getValue("description"),
-      technologies: getValue("technologies")
-        .split(",")
-        .map((t: string) => t.trim()),
-      imageUrl: getValue("imageUrl") || null,
-      githubUrl: getValue("githubUrl") || null,
-      liveUrl: getValue("liveUrl") || null,
-    };
-
-    if (editingProject) {
-      // Update existing
-      await fetch("/api/projects", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      setProjectItems((prev) =>
-        prev.map((p) => (p.id === editingProject.id ? { ...p, ...data } : p)),
-      );
-    } else {
-      // Create new
-      const res = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      const newProject = await res.json();
-      setProjectItems((prev) => [...prev, newProject]);
-    }
-
-    closeProjectDialog();
-    form.reset();
-  };
-
-  // Timeline form submit handler
-  const handleTimelineSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const getValue = (name: string) =>
-      (form.elements.namedItem(name) as HTMLInputElement)?.value || "";
-
-    const data = {
-      ...(editingTimeline && { id: editingTimeline.id }),
-      title: getValue("title"),
-      date: getValue("date"),
-      description: getValue("description"),
-      tags: getValue("tags")
-        .split(",")
-        .map((t: string) => t.trim())
-        .filter((t) => t),
-    };
-
-    if (editingTimeline) {
-      // Update existing
-      await fetch("/api/timeline", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      setTimelineList((prev) =>
-        prev.map((t) => (t.id === editingTimeline.id ? { ...t, ...data } : t)),
-      );
-    } else {
-      // Create new
-      const res = await fetch("/api/timeline", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      const newTimeline = await res.json();
-      setTimelineList((prev) => [...prev, newTimeline]);
-    }
-
-    closeTimelineDialog();
-    form.reset();
-  };
-
   return (
     <div>
-      <div className="flex gap-4 mb-8">
-        <button
-          className={`px-4 py-2 rounded-t ${tab === "projects" ? "bg-primary text-white" : "bg-foreground/10 text-foreground"}`}
-          onClick={() => setTab("projects")}
-        >
-          Projects
-        </button>
-        <button
-          className={`px-4 py-2 rounded-t ${tab === "timeline" ? "bg-primary text-white" : "bg-foreground/10 text-foreground"}`}
-          onClick={() => setTab("timeline")}
-        >
-          Timeline Items
-        </button>
+      {/* Tab navigation */}
+      <div className="flex gap-6 mb-8 border-b border-foreground/10">
+        {(["projects", "timeline"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`pb-3 text-sm font-medium transition-colors cursor-pointer capitalize ${
+              tab === t
+                ? "border-b-2 border-primary text-primary"
+                : "text-foreground/50 hover:text-foreground"
+            }`}
+          >
+            {t}
+          </button>
+        ))}
       </div>
 
-      <div className="mb-4 flex justify-between items-center">
-        <label className="inline-flex items-center">
+      {/* Toolbar */}
+      <div className="mb-6 flex justify-between items-center">
+        <label className="inline-flex items-center gap-2 text-sm text-foreground/60 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={showArchived}
             onChange={() => setShowArchived((v) => !v)}
-            className="mr-2"
+            className="accent-primary cursor-pointer"
           />
-          Show archived {tab === "projects" ? "projects" : "timeline items"}
+          Show archived
         </label>
-
         {tab === "projects" ? (
           <Button onClick={() => openProjectDialog()}>+ Add Project</Button>
         ) : (
@@ -292,296 +235,142 @@ export default function AdminTabs({
         )}
       </div>
 
+      {/* Draggable lists */}
       <DragDropContext onDragEnd={onDragEnd}>
         {tab === "projects" ? (
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Projects</h2>
-            <Droppable droppableId="projects-droppable">
-              {(provided) => (
-                <ul
-                  className="mb-8"
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                >
-                  {projectItems
-                    .filter((project) =>
-                      showArchived ? project.archived : !project.archived,
-                    )
-                    .map((project: Project, index: number) => (
-                      <Draggable
-                        key={project.id}
-                        draggableId={project.id}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <li
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="mb-4 p-4 bg-background rounded shadow flex flex-col gap-2"
-                          >
-                            <div>
-                              <span className="font-bold text-lg">
-                                {project.title}
-                              </span>
-                              <span className="ml-2 text-foreground/60">
-                                {project.description}
-                              </span>
-                              {project.archived && (
-                                <span className="ml-2 text-xs text-red-500">
-                                  (Archived)
-                                </span>
-                              )}
+          <Droppable droppableId="projects-droppable">
+            {(provided) => (
+              <ul
+                className="mb-8"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {projectItems
+                  .filter((p) => (showArchived ? p.archived : !p.archived))
+                  .map((project, index) => (
+                    <Draggable
+                      key={project.id}
+                      draggableId={project.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <li
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className="mb-3 rounded-lg border border-foreground/10 bg-background hover:border-foreground/20 transition-colors"
+                        >
+                          <div className="flex items-start gap-3 p-4">
+                            <div
+                              {...provided.dragHandleProps}
+                              className="mt-1 flex flex-col items-center gap-0.5 cursor-grab text-foreground/30 hover:text-foreground/60 shrink-0"
+                              title="Drag to reorder"
+                            >
+                              <GripIcon />
                             </div>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="primary"
-                                className="px-3 py-1"
-                                onClick={() => openProjectDialog(project)}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                variant="danger"
-                                className="px-3 py-1"
-                                onClick={() =>
-                                  openDeleteDialog(
-                                    "project",
-                                    project.id,
-                                    project.title,
-                                  )
-                                }
-                              >
-                                Delete
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                className="px-3 py-1"
-                                onClick={() =>
-                                  handleArchive(
-                                    "project",
-                                    project.id,
-                                    !project.archived,
-                                  )
-                                }
-                              >
-                                {project.archived ? "Unarchive" : "Archive"}
-                              </Button>
-                            </div>
-                          </li>
-                        )}
-                      </Draggable>
-                    ))}
-                  {provided.placeholder}
-                </ul>
-              )}
-            </Droppable>
-          </div>
+                            <ProjectCard
+                              project={project}
+                              onEdit={() => openProjectDialog(project)}
+                              onArchive={() =>
+                                handleArchive(
+                                  "project",
+                                  project.id,
+                                  !project.archived,
+                                )
+                              }
+                              onDelete={() =>
+                                openDeleteDialog(
+                                  "project",
+                                  project.id,
+                                  project.title,
+                                )
+                              }
+                            />
+                          </div>
+                        </li>
+                      )}
+                    </Draggable>
+                  ))}
+                {provided.placeholder}
+              </ul>
+            )}
+          </Droppable>
         ) : (
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Timeline Items</h2>
-            <Droppable droppableId="timeline-droppable">
-              {(provided) => (
-                <ul
-                  className="mb-8"
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                >
-                  {timelineList
-                    .filter((item) =>
-                      showArchived ? item.archived : !item.archived,
-                    )
-                    .map((item: TimelineItem, index: number) => (
-                      <Draggable
-                        key={item.id}
-                        draggableId={item.id}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <li
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="mb-4 p-4 bg-background rounded shadow flex flex-col gap-2"
-                          >
-                            <div>
-                              <span className="font-bold text-lg">
-                                {item.title}
-                              </span>
-                              <span className="ml-2 text-foreground/60">
-                                ({item.date})
-                              </span>
-                              <span className="ml-2 text-foreground/60">
-                                {item.description}
-                              </span>
-                              {item.archived && (
-                                <span className="ml-2 text-xs text-red-500">
-                                  (Archived)
-                                </span>
-                              )}
+          <Droppable droppableId="timeline-droppable">
+            {(provided) => (
+              <ul
+                className="mb-8"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {timelineList
+                  .filter((item) =>
+                    showArchived ? item.archived : !item.archived,
+                  )
+                  .map((item, index) => (
+                    <Draggable
+                      key={item.id}
+                      draggableId={item.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <li
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className="mb-3 rounded-lg border border-foreground/10 bg-background hover:border-foreground/20 transition-colors"
+                        >
+                          <div className="flex items-start gap-3 p-4">
+                            <div
+                              {...provided.dragHandleProps}
+                              className="mt-1 flex flex-col items-center gap-0.5 cursor-grab text-foreground/30 hover:text-foreground/60 shrink-0"
+                              title="Drag to reorder"
+                            >
+                              <GripIcon />
                             </div>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="primary"
-                                className="px-3 py-1"
-                                onClick={() => openTimelineDialog(item)}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                variant="danger"
-                                className="px-3 py-1"
-                                onClick={() =>
-                                  openDeleteDialog(
-                                    "timeline",
-                                    item.id,
-                                    item.title,
-                                  )
-                                }
-                              >
-                                Delete
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                className="px-3 py-1"
-                                onClick={() =>
-                                  handleArchive(
-                                    "timeline",
-                                    item.id,
-                                    !item.archived,
-                                  )
-                                }
-                              >
-                                {item.archived ? "Unarchive" : "Archive"}
-                              </Button>
-                            </div>
-                          </li>
-                        )}
-                      </Draggable>
-                    ))}
-                  {provided.placeholder}
-                </ul>
-              )}
-            </Droppable>
-          </div>
+                            <TimelineCard
+                              item={item}
+                              onEdit={() => openTimelineDialog(item)}
+                              onArchive={() =>
+                                handleArchive(
+                                  "timeline",
+                                  item.id,
+                                  !item.archived,
+                                )
+                              }
+                              onDelete={() =>
+                                openDeleteDialog(
+                                  "timeline",
+                                  item.id,
+                                  item.title,
+                                )
+                              }
+                            />
+                          </div>
+                        </li>
+                      )}
+                    </Draggable>
+                  ))}
+                {provided.placeholder}
+              </ul>
+            )}
+          </Droppable>
         )}
       </DragDropContext>
 
-      {/* Project Dialog */}
-      <Dialog
+      {/* Form dialogs */}
+      <ProjectDialog
         isOpen={showProjectDialog}
         onClose={closeProjectDialog}
-        title={editingProject ? "Edit Project" : "Add New Project"}
-      >
-        <form onSubmit={handleProjectSubmit} className="flex flex-col gap-4">
-          <input
-            key={`title-${editingProject?.id || "new"}`}
-            name="title"
-            placeholder="Title"
-            defaultValue={editingProject?.title || ""}
-            className="border p-2 rounded"
-            required
-          />
-          <textarea
-            key={`description-${editingProject?.id || "new"}`}
-            name="description"
-            placeholder="Description"
-            defaultValue={editingProject?.description || ""}
-            className="border p-2 rounded min-h-[100px]"
-            required
-            rows={4}
-          />
-          <input
-            key={`technologies-${editingProject?.id || "new"}`}
-            name="technologies"
-            placeholder="Technologies (comma separated)"
-            defaultValue={editingProject?.technologies.join(", ") || ""}
-            className="border p-2 rounded"
-            required
-          />
-          <input
-            key={`imageUrl-${editingProject?.id || "new"}`}
-            name="imageUrl"
-            placeholder="Image URL"
-            defaultValue={editingProject?.imageUrl || ""}
-            className="border p-2 rounded"
-          />
-          <input
-            key={`githubUrl-${editingProject?.id || "new"}`}
-            name="githubUrl"
-            placeholder="GitHub URL"
-            defaultValue={editingProject?.githubUrl || ""}
-            className="border p-2 rounded"
-          />
-          <input
-            key={`liveUrl-${editingProject?.id || "new"}`}
-            name="liveUrl"
-            placeholder="Live URL"
-            defaultValue={editingProject?.liveUrl || ""}
-            className="border p-2 rounded"
-          />
-          <div className="flex gap-2 justify-end">
-            <Button type="button" variant="ghost" onClick={closeProjectDialog}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary">
-              {editingProject ? "Update" : "Create"}
-            </Button>
-          </div>
-        </form>
-      </Dialog>
-
-      {/* Timeline Dialog */}
-      <Dialog
+        editingProject={editingProject}
+        onSaved={handleProjectSaved}
+      />
+      <TimelineDialog
         isOpen={showTimelineDialog}
         onClose={closeTimelineDialog}
-        title={editingTimeline ? "Edit Timeline Item" : "Add New Timeline Item"}
-      >
-        <form onSubmit={handleTimelineSubmit} className="flex flex-col gap-4">
-          <input
-            key={`title-${editingTimeline?.id || "new"}`}
-            name="title"
-            placeholder="Title"
-            defaultValue={editingTimeline?.title || ""}
-            className="border p-2 rounded"
-            required
-          />
-          <input
-            key={`date-${editingTimeline?.id || "new"}`}
-            name="date"
-            placeholder="Date (e.g. Aug. 2023 - Aug. 2024)"
-            defaultValue={editingTimeline?.date || ""}
-            className="border p-2 rounded"
-            required
-          />
-          <textarea
-            key={`description-${editingTimeline?.id || "new"}`}
-            name="description"
-            placeholder="Description"
-            defaultValue={editingTimeline?.description || ""}
-            className="border p-2 rounded min-h-[100px]"
-            required
-            rows={4}
-          />
-          <input
-            key={`tags-${editingTimeline?.id || "new"}`}
-            name="tags"
-            placeholder="Tags (comma separated)"
-            defaultValue={editingTimeline?.tags.join(", ") || ""}
-            className="border p-2 rounded"
-          />
-          <div className="flex gap-2 justify-end">
-            <Button type="button" variant="ghost" onClick={closeTimelineDialog}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary">
-              {editingTimeline ? "Update" : "Create"}
-            </Button>
-          </div>
-        </form>
-      </Dialog>
+        editingItem={editingTimeline}
+        onSaved={handleTimelineSaved}
+      />
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete confirmation */}
       <Dialog
         isOpen={showDeleteDialog}
         onClose={closeDeleteDialog}
@@ -606,8 +395,24 @@ export default function AdminTabs({
         </div>
       </Dialog>
 
+      {/* Saving toast */}
       {isSaving && (
-        <div className="fixed bottom-4 right-4 bg-yellow-200 px-4 py-2 rounded shadow">
+        <div className="fixed bottom-4 right-4 bg-foreground text-background px-4 py-2 rounded-lg text-sm font-medium shadow-lg flex items-center gap-2">
+          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
           Saving...
         </div>
       )}
