@@ -11,13 +11,14 @@ export default function Button({
   className = "",
   ...props
 }: ButtonProps) {
-  const baseStyles = "px-4 py-2 rounded transition-colors font-medium";
+  const baseStyles =
+    "px-4 py-2 rounded transition-colors font-medium cursor-pointer";
 
   const variantStyles = {
-    primary: "bg-primary text-white hover:bg-secondary",
-    secondary: "bg-foreground/30 text-foreground hover:bg-foreground/50",
+    primary: "bg-primary text-white hover:bg-primary/85",
+    secondary: "bg-foreground/10 text-foreground hover:bg-foreground/15",
     danger: "bg-red-600 text-white hover:bg-red-700",
-    ghost: "bg-foreground/10 text-foreground hover:bg-foreground/20",
+    ghost: "bg-transparent text-foreground hover:bg-foreground/10",
     outline:
       "border border-foreground/20 bg-background text-foreground hover:bg-foreground/5",
   };
