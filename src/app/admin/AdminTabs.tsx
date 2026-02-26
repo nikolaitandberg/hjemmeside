@@ -9,11 +9,26 @@ import {
 import type { Project, TimelineItem } from "@/types";
 import Dialog from "./Dialog";
 import Button from "@/app/components/Button";
+import ProjectCard from "./ProjectCard";
+import TimelineCard from "./TimelineCard";
 
 export type { Project, TimelineItem };
 
 const inputClass =
   "w-full border border-foreground/20 bg-background text-foreground rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-foreground/40 transition-colors";
+
+function GripIcon() {
+  return (
+    <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
+      <circle cx="2" cy="2" r="1.5" />
+      <circle cx="8" cy="2" r="1.5" />
+      <circle cx="2" cy="8" r="1.5" />
+      <circle cx="8" cy="8" r="1.5" />
+      <circle cx="2" cy="14" r="1.5" />
+      <circle cx="8" cy="14" r="1.5" />
+    </svg>
+  );
+}
 
 export default function AdminTabs({
   projects,
@@ -38,7 +53,6 @@ export default function AdminTabs({
   const [isSaving, setIsSaving] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
 
-  // Dialog states
   const [showProjectDialog, setShowProjectDialog] = useState(false);
   const [showTimelineDialog, setShowTimelineDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -48,14 +62,12 @@ export default function AdminTabs({
     title: string;
   } | null>(null);
 
-  // Persist tab selection in localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("adminTab", tab);
     }
   }, [tab]);
 
-  // Open dialogs for create/edit
   const openProjectDialog = (project: Project | null = null) => {
     setEditingProject(project);
     setShowProjectDialog(true);
@@ -92,7 +104,6 @@ export default function AdminTabs({
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-
     const url =
       deleteTarget.type === "project" ? "/api/projects" : "/api/timeline";
     await fetch(url, {
@@ -100,17 +111,14 @@ export default function AdminTabs({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: deleteTarget.id }),
     });
-
     if (deleteTarget.type === "project") {
       setProjectItems((prev) => prev.filter((p) => p.id !== deleteTarget.id));
     } else {
       setTimelineList((prev) => prev.filter((t) => t.id !== deleteTarget.id));
     }
-
     closeDeleteDialog();
   };
 
-  // Archive/unarchive handler
   async function handleArchive(
     type: "project" | "timeline",
     id: string,
@@ -135,7 +143,6 @@ export default function AdminTabs({
     setIsSaving(false);
   }
 
-  // Drag-and-drop handler
   async function onDragEnd(result: DropResult) {
     if (!result.destination) return;
     setIsSaving(true);
@@ -167,8 +174,7 @@ export default function AdminTabs({
     setIsSaving(false);
   }
 
-  // Project form submit handler
-  const handleProjectSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleProjectSubmit = async (e: React.BaseSyntheticEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const getValue = (name: string) =>
@@ -204,13 +210,11 @@ export default function AdminTabs({
       const newProject = await res.json();
       setProjectItems((prev) => [...prev, newProject]);
     }
-
     closeProjectDialog();
     form.reset();
   };
 
-  // Timeline form submit handler
-  const handleTimelineSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleTimelineSubmit = async (e: React.BaseSyntheticEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const getValue = (name: string) =>
@@ -245,7 +249,6 @@ export default function AdminTabs({
       const newTimeline = await res.json();
       setTimelineList((prev) => [...prev, newTimeline]);
     }
-
     closeTimelineDialog();
     form.reset();
   };
@@ -287,7 +290,6 @@ export default function AdminTabs({
           />
           Show archived
         </label>
-
         {tab === "projects" ? (
           <Button onClick={() => openProjectDialog()}>+ Add Project</Button>
         ) : (
@@ -297,6 +299,7 @@ export default function AdminTabs({
         )}
       </div>
 
+      {/* Lists */}
       <DragDropContext onDragEnd={onDragEnd}>
         {tab === "projects" ? (
           <Droppable droppableId="projects-droppable">
@@ -307,10 +310,8 @@ export default function AdminTabs({
                 {...provided.droppableProps}
               >
                 {projectItems
-                  .filter((project) =>
-                    showArchived ? project.archived : !project.archived,
-                  )
-                  .map((project: Project, index: number) => (
+                  .filter((p) => (showArchived ? p.archived : !p.archived))
+                  .map((project, index) => (
                     <Draggable
                       key={project.id}
                       draggableId={project.id}
@@ -323,80 +324,31 @@ export default function AdminTabs({
                           className="mb-3 rounded-lg border border-foreground/10 bg-background hover:border-foreground/20 transition-colors"
                         >
                           <div className="flex items-start gap-3 p-4">
-                            {/* Drag handle */}
                             <div
                               {...provided.dragHandleProps}
                               className="mt-1 flex flex-col items-center gap-0.5 cursor-grab text-foreground/30 hover:text-foreground/60 shrink-0"
                               title="Drag to reorder"
                             >
-                              <svg
-                                width="10"
-                                height="16"
-                                viewBox="0 0 10 16"
-                                fill="currentColor"
-                              >
-                                <circle cx="2" cy="2" r="1.5" />
-                                <circle cx="8" cy="2" r="1.5" />
-                                <circle cx="2" cy="8" r="1.5" />
-                                <circle cx="8" cy="8" r="1.5" />
-                                <circle cx="2" cy="14" r="1.5" />
-                                <circle cx="8" cy="14" r="1.5" />
-                              </svg>
+                              <GripIcon />
                             </div>
-
-                            {/* Content */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold">
-                                  {project.title}
-                                </span>
-                                {project.archived && (
-                                  <span className="text-xs bg-quaternary/15 text-quaternary px-1.5 py-0.5 rounded">
-                                    Archived
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-sm text-foreground/50 mt-0.5 line-clamp-1">
-                                {project.description}
-                              </p>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex gap-1.5 shrink-0">
-                              <Button
-                                variant="ghost"
-                                className="px-2.5 py-1 text-sm"
-                                onClick={() => openProjectDialog(project)}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                className="px-2.5 py-1 text-sm"
-                                onClick={() =>
-                                  handleArchive(
-                                    "project",
-                                    project.id,
-                                    !project.archived,
-                                  )
-                                }
-                              >
-                                {project.archived ? "Unarchive" : "Archive"}
-                              </Button>
-                              <Button
-                                variant="danger"
-                                className="px-2.5 py-1 text-sm"
-                                onClick={() =>
-                                  openDeleteDialog(
-                                    "project",
-                                    project.id,
-                                    project.title,
-                                  )
-                                }
-                              >
-                                Delete
-                              </Button>
-                            </div>
+                            <ProjectCard
+                              project={project}
+                              onEdit={() => openProjectDialog(project)}
+                              onArchive={() =>
+                                handleArchive(
+                                  "project",
+                                  project.id,
+                                  !project.archived,
+                                )
+                              }
+                              onDelete={() =>
+                                openDeleteDialog(
+                                  "project",
+                                  project.id,
+                                  project.title,
+                                )
+                              }
+                            />
                           </div>
                         </li>
                       )}
@@ -418,7 +370,7 @@ export default function AdminTabs({
                   .filter((item) =>
                     showArchived ? item.archived : !item.archived,
                   )
-                  .map((item: TimelineItem, index: number) => (
+                  .map((item, index) => (
                     <Draggable
                       key={item.id}
                       draggableId={item.id}
@@ -431,80 +383,31 @@ export default function AdminTabs({
                           className="mb-3 rounded-lg border border-foreground/10 bg-background hover:border-foreground/20 transition-colors"
                         >
                           <div className="flex items-start gap-3 p-4">
-                            {/* Drag handle */}
                             <div
                               {...provided.dragHandleProps}
                               className="mt-1 flex flex-col items-center gap-0.5 cursor-grab text-foreground/30 hover:text-foreground/60 shrink-0"
                               title="Drag to reorder"
                             >
-                              <svg
-                                width="10"
-                                height="16"
-                                viewBox="0 0 10 16"
-                                fill="currentColor"
-                              >
-                                <circle cx="2" cy="2" r="1.5" />
-                                <circle cx="8" cy="2" r="1.5" />
-                                <circle cx="2" cy="8" r="1.5" />
-                                <circle cx="8" cy="8" r="1.5" />
-                                <circle cx="2" cy="14" r="1.5" />
-                                <circle cx="8" cy="14" r="1.5" />
-                              </svg>
+                              <GripIcon />
                             </div>
-
-                            {/* Content */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold">
-                                  {item.title}
-                                </span>
-                                {item.archived && (
-                                  <span className="text-xs bg-quaternary/15 text-quaternary px-1.5 py-0.5 rounded">
-                                    Archived
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-sm text-foreground/50 mt-0.5 line-clamp-1">
-                                {item.date} &mdash; {item.description}
-                              </p>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex gap-1.5 shrink-0">
-                              <Button
-                                variant="ghost"
-                                className="px-2.5 py-1 text-sm"
-                                onClick={() => openTimelineDialog(item)}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                className="px-2.5 py-1 text-sm"
-                                onClick={() =>
-                                  handleArchive(
-                                    "timeline",
-                                    item.id,
-                                    !item.archived,
-                                  )
-                                }
-                              >
-                                {item.archived ? "Unarchive" : "Archive"}
-                              </Button>
-                              <Button
-                                variant="danger"
-                                className="px-2.5 py-1 text-sm"
-                                onClick={() =>
-                                  openDeleteDialog(
-                                    "timeline",
-                                    item.id,
-                                    item.title,
-                                  )
-                                }
-                              >
-                                Delete
-                              </Button>
-                            </div>
+                            <TimelineCard
+                              item={item}
+                              onEdit={() => openTimelineDialog(item)}
+                              onArchive={() =>
+                                handleArchive(
+                                  "timeline",
+                                  item.id,
+                                  !item.archived,
+                                )
+                              }
+                              onDelete={() =>
+                                openDeleteDialog(
+                                  "timeline",
+                                  item.id,
+                                  item.title,
+                                )
+                              }
+                            />
                           </div>
                         </li>
                       )}
