@@ -31,7 +31,8 @@ export default function ProjectDialog({
       description: getValue("description"),
       technologies: getValue("technologies")
         .split(",")
-        .map((t: string) => t.trim()),
+        .map((t: string) => t.trim())
+        .filter((t) => t),
       imageUrl: getValue("imageUrl") || null,
       githubUrl: getValue("githubUrl") || null,
       liveUrl: getValue("liveUrl") || null,
