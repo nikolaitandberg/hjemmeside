@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/utils/db";
 import { parseJsonArray } from "@/utils/jsonArray";
 import AdminTabsWrapper from "./AdminTabsWrapper";
-import LogoutButton from "./LogoutButton";
+import AdminHeader from "./AdminHeader";
 import type { Project, TimelineItem } from "@/types";
 
 export default async function AdminPage() {
@@ -52,15 +52,7 @@ export default async function AdminPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
-      <div className="flex justify-between items-start mb-1">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="mt-1 text-sm text-foreground/50">
-            Welcome, {session.user?.email}
-          </p>
-        </div>
-        <LogoutButton />
-      </div>
+      <AdminHeader email={session.user?.email ?? ""} />
       <hr className="my-6 border-foreground/10" />
       <AdminTabsWrapper projects={projects} timelineItems={timelineItems} />
     </div>
