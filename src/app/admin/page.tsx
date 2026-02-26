@@ -51,13 +51,17 @@ export default async function AdminPage() {
   }));
 
   return (
-    <div className="max-w-3xl mx-auto p-8">
-      <div className="flex justify-between items-center mb-2">
-        <h1 className="text-3xl font-bold">Admin page</h1>
+    <div className="max-w-4xl mx-auto px-6 py-10">
+      <div className="flex justify-between items-start mb-1">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="mt-1 text-sm text-foreground/50">
+            Welcome, {session.user?.email}
+          </p>
+        </div>
         <LogoutButton />
       </div>
-      <p className="mb-6 text-foreground/60">Welcome, {session.user?.email}</p>
-      <hr className="my-8" />
+      <hr className="my-6 border-foreground/10" />
       <AdminTabsWrapper projects={projects} timelineItems={timelineItems} />
     </div>
   );
