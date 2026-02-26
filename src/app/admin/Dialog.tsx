@@ -65,6 +65,7 @@ export default function Dialog({
           <button
             onClick={onClose}
             className="text-foreground/50 hover:text-foreground cursor-pointer text-2xl leading-none"
+            aria-label="Close dialog"
           >
             ×
           </button>
