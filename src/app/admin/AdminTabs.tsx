@@ -12,6 +12,9 @@ import Button from "@/app/components/Button";
 
 export type { Project, TimelineItem };
 
+const inputClass =
+  "w-full border border-foreground/20 bg-background text-foreground rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-foreground/40 transition-colors";
+
 export default function AdminTabs({
   projects,
   timelineItems,
@@ -65,13 +68,11 @@ export default function AdminTabs({
 
   const closeProjectDialog = () => {
     setShowProjectDialog(false);
-    // Small delay to allow dialog animation before clearing state
     setTimeout(() => setEditingProject(null), 100);
   };
 
   const closeTimelineDialog = () => {
     setShowTimelineDialog(false);
-    // Small delay to allow dialog animation before clearing state
     setTimeout(() => setEditingTimeline(null), 100);
   };
 
@@ -143,7 +144,6 @@ export default function AdminTabs({
       const [removed] = reordered.splice(result.source.index, 1);
       reordered.splice(result.destination.index, 0, removed);
       setProjectItems(reordered);
-      // Persist new order
       await fetch("/api/projects", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -156,7 +156,6 @@ export default function AdminTabs({
       const [removed] = reordered.splice(result.source.index, 1);
       reordered.splice(result.destination.index, 0, removed);
       setTimelineList(reordered);
-      // Persist new order
       await fetch("/api/timeline", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -188,7 +187,6 @@ export default function AdminTabs({
     };
 
     if (editingProject) {
-      // Update existing
       await fetch("/api/projects", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -198,7 +196,6 @@ export default function AdminTabs({
         prev.map((p) => (p.id === editingProject.id ? { ...p, ...data } : p)),
       );
     } else {
-      // Create new
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -231,7 +228,6 @@ export default function AdminTabs({
     };
 
     if (editingTimeline) {
-      // Update existing
       await fetch("/api/timeline", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -241,7 +237,6 @@ export default function AdminTabs({
         prev.map((t) => (t.id === editingTimeline.id ? { ...t, ...data } : t)),
       );
     } else {
-      // Create new
       const res = await fetch("/api/timeline", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -257,30 +252,40 @@ export default function AdminTabs({
 
   return (
     <div>
-      <div className="flex gap-4 mb-8">
+      {/* Tab navigation */}
+      <div className="flex gap-6 mb-8 border-b border-foreground/10">
         <button
-          className={`px-4 py-2 rounded-t ${tab === "projects" ? "bg-primary text-white" : "bg-foreground/10 text-foreground"}`}
+          className={`pb-3 text-sm font-medium transition-colors cursor-pointer ${
+            tab === "projects"
+              ? "border-b-2 border-primary text-primary"
+              : "text-foreground/50 hover:text-foreground"
+          }`}
           onClick={() => setTab("projects")}
         >
           Projects
         </button>
         <button
-          className={`px-4 py-2 rounded-t ${tab === "timeline" ? "bg-primary text-white" : "bg-foreground/10 text-foreground"}`}
+          className={`pb-3 text-sm font-medium transition-colors cursor-pointer ${
+            tab === "timeline"
+              ? "border-b-2 border-primary text-primary"
+              : "text-foreground/50 hover:text-foreground"
+          }`}
           onClick={() => setTab("timeline")}
         >
-          Timeline Items
+          Timeline
         </button>
       </div>
 
-      <div className="mb-4 flex justify-between items-center">
-        <label className="inline-flex items-center">
+      {/* Toolbar */}
+      <div className="mb-6 flex justify-between items-center">
+        <label className="inline-flex items-center gap-2 text-sm text-foreground/60 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={showArchived}
             onChange={() => setShowArchived((v) => !v)}
-            className="mr-2"
+            className="accent-primary cursor-pointer"
           />
-          Show archived {tab === "projects" ? "projects" : "timeline items"}
+          Show archived
         </label>
 
         {tab === "projects" ? (
@@ -294,69 +299,80 @@ export default function AdminTabs({
 
       <DragDropContext onDragEnd={onDragEnd}>
         {tab === "projects" ? (
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Projects</h2>
-            <Droppable droppableId="projects-droppable">
-              {(provided) => (
-                <ul
-                  className="mb-8"
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                >
-                  {projectItems
-                    .filter((project) =>
-                      showArchived ? project.archived : !project.archived,
-                    )
-                    .map((project: Project, index: number) => (
-                      <Draggable
-                        key={project.id}
-                        draggableId={project.id}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <li
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="mb-4 p-4 bg-background rounded shadow flex flex-col gap-2"
-                          >
-                            <div>
-                              <span className="font-bold text-lg">
-                                {project.title}
-                              </span>
-                              <span className="ml-2 text-foreground/60">
-                                {project.description}
-                              </span>
-                              {project.archived && (
-                                <span className="ml-2 text-xs text-red-500">
-                                  (Archived)
-                                </span>
-                              )}
+          <Droppable droppableId="projects-droppable">
+            {(provided) => (
+              <ul
+                className="mb-8"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {projectItems
+                  .filter((project) =>
+                    showArchived ? project.archived : !project.archived,
+                  )
+                  .map((project: Project, index: number) => (
+                    <Draggable
+                      key={project.id}
+                      draggableId={project.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <li
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className="mb-3 rounded-lg border border-foreground/10 bg-background hover:border-foreground/20 transition-colors"
+                        >
+                          <div className="flex items-start gap-3 p-4">
+                            {/* Drag handle */}
+                            <div
+                              {...provided.dragHandleProps}
+                              className="mt-1 flex flex-col items-center gap-0.5 cursor-grab text-foreground/30 hover:text-foreground/60 shrink-0"
+                              title="Drag to reorder"
+                            >
+                              <svg
+                                width="10"
+                                height="16"
+                                viewBox="0 0 10 16"
+                                fill="currentColor"
+                              >
+                                <circle cx="2" cy="2" r="1.5" />
+                                <circle cx="8" cy="2" r="1.5" />
+                                <circle cx="2" cy="8" r="1.5" />
+                                <circle cx="8" cy="8" r="1.5" />
+                                <circle cx="2" cy="14" r="1.5" />
+                                <circle cx="8" cy="14" r="1.5" />
+                              </svg>
                             </div>
-                            <div className="flex gap-2">
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold">
+                                  {project.title}
+                                </span>
+                                {project.archived && (
+                                  <span className="text-xs bg-quaternary/15 text-quaternary px-1.5 py-0.5 rounded">
+                                    Archived
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-foreground/50 mt-0.5 line-clamp-1">
+                                {project.description}
+                              </p>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-1.5 shrink-0">
                               <Button
-                                variant="primary"
-                                className="px-3 py-1"
+                                variant="ghost"
+                                className="px-2.5 py-1 text-sm"
                                 onClick={() => openProjectDialog(project)}
                               >
                                 Edit
                               </Button>
                               <Button
-                                variant="danger"
-                                className="px-3 py-1"
-                                onClick={() =>
-                                  openDeleteDialog(
-                                    "project",
-                                    project.id,
-                                    project.title,
-                                  )
-                                }
-                              >
-                                Delete
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                className="px-3 py-1"
+                                variant="ghost"
+                                className="px-2.5 py-1 text-sm"
                                 onClick={() =>
                                   handleArchive(
                                     "project",
@@ -367,83 +383,104 @@ export default function AdminTabs({
                               >
                                 {project.archived ? "Unarchive" : "Archive"}
                               </Button>
-                            </div>
-                          </li>
-                        )}
-                      </Draggable>
-                    ))}
-                  {provided.placeholder}
-                </ul>
-              )}
-            </Droppable>
-          </div>
-        ) : (
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Timeline Items</h2>
-            <Droppable droppableId="timeline-droppable">
-              {(provided) => (
-                <ul
-                  className="mb-8"
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                >
-                  {timelineList
-                    .filter((item) =>
-                      showArchived ? item.archived : !item.archived,
-                    )
-                    .map((item: TimelineItem, index: number) => (
-                      <Draggable
-                        key={item.id}
-                        draggableId={item.id}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <li
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="mb-4 p-4 bg-background rounded shadow flex flex-col gap-2"
-                          >
-                            <div>
-                              <span className="font-bold text-lg">
-                                {item.title}
-                              </span>
-                              <span className="ml-2 text-foreground/60">
-                                ({item.date})
-                              </span>
-                              <span className="ml-2 text-foreground/60">
-                                {item.description}
-                              </span>
-                              {item.archived && (
-                                <span className="ml-2 text-xs text-red-500">
-                                  (Archived)
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="primary"
-                                className="px-3 py-1"
-                                onClick={() => openTimelineDialog(item)}
-                              >
-                                Edit
-                              </Button>
                               <Button
                                 variant="danger"
-                                className="px-3 py-1"
+                                className="px-2.5 py-1 text-sm"
                                 onClick={() =>
                                   openDeleteDialog(
-                                    "timeline",
-                                    item.id,
-                                    item.title,
+                                    "project",
+                                    project.id,
+                                    project.title,
                                   )
                                 }
                               >
                                 Delete
                               </Button>
+                            </div>
+                          </div>
+                        </li>
+                      )}
+                    </Draggable>
+                  ))}
+                {provided.placeholder}
+              </ul>
+            )}
+          </Droppable>
+        ) : (
+          <Droppable droppableId="timeline-droppable">
+            {(provided) => (
+              <ul
+                className="mb-8"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {timelineList
+                  .filter((item) =>
+                    showArchived ? item.archived : !item.archived,
+                  )
+                  .map((item: TimelineItem, index: number) => (
+                    <Draggable
+                      key={item.id}
+                      draggableId={item.id}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <li
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className="mb-3 rounded-lg border border-foreground/10 bg-background hover:border-foreground/20 transition-colors"
+                        >
+                          <div className="flex items-start gap-3 p-4">
+                            {/* Drag handle */}
+                            <div
+                              {...provided.dragHandleProps}
+                              className="mt-1 flex flex-col items-center gap-0.5 cursor-grab text-foreground/30 hover:text-foreground/60 shrink-0"
+                              title="Drag to reorder"
+                            >
+                              <svg
+                                width="10"
+                                height="16"
+                                viewBox="0 0 10 16"
+                                fill="currentColor"
+                              >
+                                <circle cx="2" cy="2" r="1.5" />
+                                <circle cx="8" cy="2" r="1.5" />
+                                <circle cx="2" cy="8" r="1.5" />
+                                <circle cx="8" cy="8" r="1.5" />
+                                <circle cx="2" cy="14" r="1.5" />
+                                <circle cx="8" cy="14" r="1.5" />
+                              </svg>
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold">
+                                  {item.title}
+                                </span>
+                                {item.archived && (
+                                  <span className="text-xs bg-quaternary/15 text-quaternary px-1.5 py-0.5 rounded">
+                                    Archived
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-foreground/50 mt-0.5 line-clamp-1">
+                                {item.date} &mdash; {item.description}
+                              </p>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-1.5 shrink-0">
                               <Button
-                                variant="secondary"
-                                className="px-3 py-1"
+                                variant="ghost"
+                                className="px-2.5 py-1 text-sm"
+                                onClick={() => openTimelineDialog(item)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="px-2.5 py-1 text-sm"
                                 onClick={() =>
                                   handleArchive(
                                     "timeline",
@@ -454,16 +491,29 @@ export default function AdminTabs({
                               >
                                 {item.archived ? "Unarchive" : "Archive"}
                               </Button>
+                              <Button
+                                variant="danger"
+                                className="px-2.5 py-1 text-sm"
+                                onClick={() =>
+                                  openDeleteDialog(
+                                    "timeline",
+                                    item.id,
+                                    item.title,
+                                  )
+                                }
+                              >
+                                Delete
+                              </Button>
                             </div>
-                          </li>
-                        )}
-                      </Draggable>
-                    ))}
-                  {provided.placeholder}
-                </ul>
-              )}
-            </Droppable>
-          </div>
+                          </div>
+                        </li>
+                      )}
+                    </Draggable>
+                  ))}
+                {provided.placeholder}
+              </ul>
+            )}
+          </Droppable>
         )}
       </DragDropContext>
 
@@ -479,7 +529,7 @@ export default function AdminTabs({
             name="title"
             placeholder="Title"
             defaultValue={editingProject?.title || ""}
-            className="border p-2 rounded"
+            className={inputClass}
             required
           />
           <textarea
@@ -487,7 +537,7 @@ export default function AdminTabs({
             name="description"
             placeholder="Description"
             defaultValue={editingProject?.description || ""}
-            className="border p-2 rounded min-h-[100px]"
+            className={`${inputClass} min-h-[100px]`}
             required
             rows={4}
           />
@@ -496,7 +546,7 @@ export default function AdminTabs({
             name="technologies"
             placeholder="Technologies (comma separated)"
             defaultValue={editingProject?.technologies.join(", ") || ""}
-            className="border p-2 rounded"
+            className={inputClass}
             required
           />
           <input
@@ -504,21 +554,21 @@ export default function AdminTabs({
             name="imageUrl"
             placeholder="Image URL"
             defaultValue={editingProject?.imageUrl || ""}
-            className="border p-2 rounded"
+            className={inputClass}
           />
           <input
             key={`githubUrl-${editingProject?.id || "new"}`}
             name="githubUrl"
             placeholder="GitHub URL"
             defaultValue={editingProject?.githubUrl || ""}
-            className="border p-2 rounded"
+            className={inputClass}
           />
           <input
             key={`liveUrl-${editingProject?.id || "new"}`}
             name="liveUrl"
             placeholder="Live URL"
             defaultValue={editingProject?.liveUrl || ""}
-            className="border p-2 rounded"
+            className={inputClass}
           />
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="ghost" onClick={closeProjectDialog}>
@@ -543,7 +593,7 @@ export default function AdminTabs({
             name="title"
             placeholder="Title"
             defaultValue={editingTimeline?.title || ""}
-            className="border p-2 rounded"
+            className={inputClass}
             required
           />
           <input
@@ -551,7 +601,7 @@ export default function AdminTabs({
             name="date"
             placeholder="Date (e.g. Aug. 2023 - Aug. 2024)"
             defaultValue={editingTimeline?.date || ""}
-            className="border p-2 rounded"
+            className={inputClass}
             required
           />
           <textarea
@@ -559,7 +609,7 @@ export default function AdminTabs({
             name="description"
             placeholder="Description"
             defaultValue={editingTimeline?.description || ""}
-            className="border p-2 rounded min-h-[100px]"
+            className={`${inputClass} min-h-[100px]`}
             required
             rows={4}
           />
@@ -568,7 +618,7 @@ export default function AdminTabs({
             name="tags"
             placeholder="Tags (comma separated)"
             defaultValue={editingTimeline?.tags.join(", ") || ""}
-            className="border p-2 rounded"
+            className={inputClass}
           />
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="ghost" onClick={closeTimelineDialog}>
@@ -606,8 +656,24 @@ export default function AdminTabs({
         </div>
       </Dialog>
 
+      {/* Saving toast */}
       {isSaving && (
-        <div className="fixed bottom-4 right-4 bg-yellow-200 px-4 py-2 rounded shadow">
+        <div className="fixed bottom-4 right-4 bg-foreground text-background px-4 py-2 rounded-lg text-sm font-medium shadow-lg flex items-center gap-2">
+          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
           Saving...
         </div>
       )}
