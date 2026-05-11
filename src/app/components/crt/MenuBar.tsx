@@ -16,6 +16,7 @@ interface MenuItem {
   external?: boolean;
   onSelect?: () => void;
   separatorBefore?: boolean;
+  disabled?: boolean;
 }
 
 interface MenuGroup {
@@ -44,18 +45,19 @@ export default function MenuBar() {
     {
       trigger: "File",
       items: [
-        { label: "New Session", onSelect: () => location.reload() },
-        { label: "Reload", onSelect: () => location.reload() },
+        {
+          label: "New Session",
+          onSelect: () => {
+            sessionStorage.clear();
+            location.reload();
+          },
+        },
         {
           label: "Admin Login...",
           href: "/admin/login",
           separatorBefore: true,
         },
       ],
-    },
-    {
-      trigger: "Edit",
-      items: [{ label: "Cut" }, { label: "Copy" }, { label: "Paste" }],
     },
     {
       trigger: "View",
@@ -98,10 +100,7 @@ export default function MenuBar() {
       items: [
         {
           label: "About NIKOLAI.SYS",
-          onSelect: () =>
-            alert(
-              "NIKOLAI.SYS v1.0\n(c) 2026 Nikolai Tandberg\n\nPress F10 to toggle display mode.",
-            ),
+          onSelect: () => window.dispatchEvent(new CustomEvent("open-about")),
         },
       ],
     },
@@ -109,27 +108,29 @@ export default function MenuBar() {
 
   return (
     <div className="sticky top-0 z-40 bg-muted-chrome text-black border-b-2 border-black crt-bevel-out-thin">
-      <div className="flex items-center gap-0 px-1 py-0.5">
-        <span className="px-2 py-0.5 text-base uppercase tracking-wider font-bold border-r border-black mr-1 select-none">
-          NIKOLAI.SYS
+      <div className="flex items-center justify-between px-1 py-0.5">
+        <div className="flex items-center gap-0">
+          {menus.map((menu) => (
+            <DropdownMenu key={menu.trigger}>
+              <DropdownMenuTrigger asChild>
+                <span>
+                  <MenuTrigger label={menu.trigger} />
+                </span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" sideOffset={2}>
+                <DropdownMenuLabel className="bg-blue-700 text-white px-2 py-0.5 uppercase">
+                  {menu.trigger}
+                </DropdownMenuLabel>
+                {menu.items.map((item, i) => (
+                  <RenderItem key={`${menu.trigger}-${i}`} item={item} />
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ))}
+        </div>
+        <span className="pr-2 text-sm tracking-widest opacity-60 select-none uppercase hidden sm:inline">
+          NIKOLAI.SYS v1.0
         </span>
-        {menus.map((menu) => (
-          <DropdownMenu key={menu.trigger}>
-            <DropdownMenuTrigger asChild>
-              <span>
-                <MenuTrigger label={menu.trigger} />
-              </span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" sideOffset={2}>
-              <DropdownMenuLabel className="bg-blue-700 text-white px-2 py-0.5 uppercase">
-                {menu.trigger}
-              </DropdownMenuLabel>
-              {menu.items.map((item, i) => (
-                <RenderItem key={`${menu.trigger}-${i}`} item={item} />
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ))}
       </div>
     </div>
   );
@@ -145,6 +146,7 @@ function RenderItem({ item }: { item: MenuItem }) {
         }
       }}
       asChild={!!item.href}
+      disabled={item.disabled}
     >
       {item.href ? (
         <a

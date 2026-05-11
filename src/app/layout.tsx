@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import CRTOverlay from "./components/crt/CRTOverlay";
 import BootSequence from "./components/crt/BootSequence";
+import AboutDialog from "./components/crt/AboutDialog";
 
 const vt323 = VT323({
   weight: "400",
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className="antialiased crt-on-desktop">
         <ThemeProvider>
           <BootSequence />
+          <AboutDialog />
           {children}
           <CRTOverlay />
         </ThemeProvider>
