@@ -2,151 +2,629 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/* ===========================================================
+ * CRT / EGA Theme — IBM PC DOS-era 16-color palette.
+ * See DESIGN.md for the full design system.
+ * ========================================================= */
 
 :root {
-  --primary: oklch(0.205 0 0);
-  --secondary: oklch(0.97 0 0);
-  --tertiary: #073236;
-  --quaternary: #8c3026;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  /* Raw EGA palette (semantic names below) */
+  --ega-black: #000000;
+  --ega-blue: #0000aa;
+  --ega-green: #00aa00;
+  --ega-cyan: #00aaaa;
+  --ega-red: #aa0000;
+  --ega-magenta: #aa00aa;
+  --ega-brown: #aa5500;
+  --ega-light-gray: #aaaaaa;
+  --ega-dark-gray: #555555;
+  --ega-bright-blue: #5555ff;
+  --ega-bright-green: #55ff55;
+  --ega-bright-cyan: #55ffff;
+  --ega-bright-red: #ff5555;
+  --ega-bright-magenta: #ff55ff;
+  --ega-bright-yellow: #ffff55;
+  --ega-white: #ffffff;
 
-:root.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  /* Semantic tokens */
+  --background: var(--ega-blue);
+  --foreground: var(--ega-white);
+  --accent-yellow: var(--ega-bright-yellow);
+  --accent-cyan: var(--ega-bright-cyan);
+  --accent-magenta: var(--ega-bright-magenta);
+  --accent-green: var(--ega-bright-green);
+  --accent-red: var(--ega-bright-red);
+  --dim: var(--ega-bright-blue);
+  --muted-chrome: var(--ega-light-gray);
+  --window: var(--ega-light-gray);
+  --window-foreground: var(--ega-black);
+  --shadow: var(--ega-black);
+
+  /* shadcn-compatible aliases (so installed components still resolve) */
+  --card: var(--window);
+  --card-foreground: var(--window-foreground);
+  --popover: var(--window);
+  --popover-foreground: var(--window-foreground);
+  --primary: var(--accent-yellow);
+  --primary-foreground: var(--ega-black);
+  --secondary: var(--ega-bright-cyan);
+  --secondary-foreground: var(--ega-black);
+  --muted: var(--ega-dark-gray);
+  --muted-foreground: var(--ega-light-gray);
+  --accent: var(--accent-cyan);
+  --accent-foreground: var(--ega-black);
+  --destructive: var(--accent-red);
+  --destructive-foreground: var(--ega-white);
+  --border: var(--ega-white);
+  --input: var(--ega-black);
+  --ring: var(--accent-yellow);
+  --chart-1: var(--accent-cyan);
+  --chart-2: var(--accent-yellow);
+  --chart-3: var(--accent-magenta);
+  --chart-4: var(--accent-green);
+  --chart-5: var(--accent-red);
+  --sidebar: var(--window);
+  --sidebar-foreground: var(--window-foreground);
+  --sidebar-primary: var(--accent-yellow);
+  --sidebar-primary-foreground: var(--ega-black);
+  --sidebar-accent: var(--accent-cyan);
+  --sidebar-accent-foreground: var(--ega-black);
+  --sidebar-border: var(--ega-white);
+  --sidebar-ring: var(--accent-yellow);
+
+  /* Sharp corners everywhere */
+  --radius: 0px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
-  --color-tertiary: var(--tertiary);
-  --color-quaternary: var(--quaternary);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-magenta: var(--accent-magenta);
+  --color-accent-green: var(--accent-green);
+  --color-accent-red: var(--accent-red);
+  --color-dim: var(--dim);
+  --color-window: var(--window);
+  --color-window-foreground: var(--window-foreground);
+  --color-muted-chrome: var(--muted-chrome);
+  --color-shadow: var(--shadow);
 
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-roboto-mono: var(--font-roboto-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-vt323);
+  --font-mono: var(--font-vt323);
+  --font-display: var(--font-vt323);
+  --font-fine: var(--font-ibm-plex-mono);
+
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ===========================================================
+ * Base typography & layout
+ * ========================================================= */
+
+body {
+  font-family: var(--font-vt323), "IBM Plex Mono", "Courier New", monospace;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  background-color: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+/* VT323 is coarse — bump headings, allow body to breathe */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-vt323), "IBM Plex Mono", "Courier New", monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Selection styling */
+::selection {
+  background: var(--accent-yellow);
+  color: var(--ega-black);
+}
+
+/* Scrollbar — chunky DOS-style */
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ega-blue);
+  border-left: 1px solid var(--ega-white);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ega-light-gray);
+  border: 1px solid var(--ega-white);
+  box-shadow:
+    inset 1px 1px 0 var(--ega-white),
+    inset -1px -1px 0 var(--ega-dark-gray);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ega-white);
+}
+
+/* ===========================================================
+ * Bevels — Norton Commander / Win 3.1 style 3D edges
+ * ========================================================= */
+
+.crt-bevel-out {
+  box-shadow:
+    inset 1px 1px 0 0 var(--ega-white),
+    inset -1px -1px 0 0 var(--ega-black),
+    inset 2px 2px 0 0 var(--ega-light-gray),
+    inset -2px -2px 0 0 var(--ega-dark-gray);
+}
+
+.crt-bevel-in {
+  box-shadow:
+    inset 1px 1px 0 0 var(--ega-black),
+    inset -1px -1px 0 0 var(--ega-white),
+    inset 2px 2px 0 0 var(--ega-dark-gray),
+    inset -2px -2px 0 0 var(--ega-light-gray);
+}
+
+.crt-bevel-out-thin {
+  box-shadow:
+    inset 1px 1px 0 0 var(--ega-white),
+    inset -1px -1px 0 0 var(--ega-black);
+}
+
+.crt-bevel-in-thin {
+  box-shadow:
+    inset 1px 1px 0 0 var(--ega-black),
+    inset -1px -1px 0 0 var(--ega-white);
+}
+
+/* ===========================================================
+ * Phosphor glow — applied to "screen" text
+ * ========================================================= */
+
+.crt-glow {
+  text-shadow:
+    0 0 1px currentColor,
+    0 0 4px color-mix(in srgb, currentColor 60%, transparent),
+    0 0 9px color-mix(in srgb, currentColor 30%, transparent);
+}
+
+.crt-glow-strong {
+  text-shadow:
+    0 0 1px currentColor,
+    0 0 6px currentColor,
+    0 0 14px color-mix(in srgb, currentColor 50%, transparent);
+}
+
+/* ===========================================================
+ * Animations — flicker, scan, cursor blink, boot type-on
+ * ========================================================= */
+
+@keyframes crt-flicker {
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+    opacity: 1;
+  }
+  20%,
+  24%,
+  55% {
+    opacity: 0.92;
   }
 }
 
-body {
-  font-family: var(--font-roboto-mono), Arial, Helvetica, sans-serif;
+@keyframes crt-scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+@keyframes crt-cursor {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
 }
+
+@keyframes crt-boot-type {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.crt-cursor {
+  display: inline-block;
+  width: 0.6em;
+  background: currentColor;
+  margin-left: 2px;
+  animation: crt-cursor 1s steps(2, end) infinite;
+}
+.crt-cursor::before {
+  content: "\00a0";
+}
+
+.crt-typewriter {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: crt-boot-type 0.4s steps(40, end) forwards;
+}
+
+/* ===========================================================
+ * CRT overlay (mounted globally; effects gated on .crt mode)
+ * ========================================================= */
+
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.crt-overlay__scanlines {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.22) 2px,
+    rgba(0, 0, 0, 0.22) 3px
+  );
+  mix-blend-mode: multiply;
+}
+
+.crt-overlay__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    rgba(0, 0, 0, 0.35) 92%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+}
+
+.crt-overlay__bezel {
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 80px rgba(0, 0, 0, 0.5),
+    inset 0 0 200px rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+}
+
+.crt-overlay__scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
+  animation: crt-scan 7s linear infinite;
+}
+
+.crt-overlay__flicker {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.02);
+  animation: crt-flicker 0.18s infinite alternate;
+}
+
+/* In accessible mode every overlay layer is hidden */
+html.accessible .crt-overlay {
+  display: none;
+}
+html.accessible .crt-glow,
+html.accessible .crt-glow-strong {
+  text-shadow: none;
+}
+
+/* ===========================================================
+ * shadcn override — wire dialog/dropdown/etc. into DOS look
+ * ========================================================= */
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
+    border-color: var(--border);
   }
   html {
-    @apply font-sans;
+    font-family: var(--font-vt323), "IBM Plex Mono", "Courier New", monospace;
   }
+}
+
+/* Buttons: chunky outset bevel, no radius */
+[data-slot="button"] {
+  border-radius: 0 !important;
+  font-family: var(--font-vt323), "IBM Plex Mono", monospace;
+  font-size: 18px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.75rem !important;
+  height: auto !important;
+}
+[data-slot="button"][data-variant="default"] {
+  background: var(--window);
+  color: var(--window-foreground);
+  box-shadow:
+    inset 1px 1px 0 0 var(--ega-white),
+    inset -2px -2px 0 0 var(--ega-black),
+    inset 2px 2px 0 0 var(--ega-light-gray);
+  border: 1px solid var(--ega-black);
+}
+[data-slot="button"][data-variant="default"]:hover {
+  background: var(--ega-white);
+}
+[data-slot="button"][data-variant="default"]:active {
+  box-shadow:
+    inset 1px 1px 0 0 var(--ega-black),
+    inset -1px -1px 0 0 var(--ega-white),
+    inset 2px 2px 0 0 var(--ega-dark-gray);
+  transform: translate(1px, 1px);
+}
+[data-slot="button"][data-variant="destructive"] {
+  background: var(--accent-red);
+  color: var(--ega-white);
+  box-shadow:
+    inset 1px 1px 0 0 var(--ega-bright-red),
+    inset -2px -2px 0 0 var(--ega-black);
+  border: 1px solid var(--ega-black);
+}
+[data-slot="button"][data-variant="outline"],
+[data-slot="button"][data-variant="ghost"],
+[data-slot="button"][data-variant="secondary"] {
+  background: transparent;
+  color: inherit;
+  border: 1px solid currentColor;
+  box-shadow: none;
+}
+[data-slot="button"][data-variant="outline"]:hover,
+[data-slot="button"][data-variant="ghost"]:hover,
+[data-slot="button"][data-variant="secondary"]:hover {
+  background: var(--accent-yellow);
+  color: var(--ega-black);
+}
+[data-slot="button"][data-variant="link"] {
+  background: transparent;
+  color: var(--accent-cyan);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Inputs / textareas: inset bevel, blocky cursor */
+input,
+textarea,
+select {
+  border-radius: 0 !important;
+  font-family: var(--font-vt323), "IBM Plex Mono", monospace !important;
+  font-size: 18px !important;
+}
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background: var(--ega-black) !important;
+  color: var(--accent-yellow) !important;
+  border: 1px solid var(--ega-white) !important;
+  box-shadow:
+    inset 1px 1px 0 0 var(--ega-black),
+    inset -1px -1px 0 0 var(--ega-dark-gray) !important;
+  caret-color: var(--accent-yellow);
+  padding: 0.25rem 0.5rem !important;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--accent-yellow) !important;
+  outline-offset: 0 !important;
+}
+input::placeholder,
+textarea::placeholder {
+  color: color-mix(in srgb, var(--accent-yellow) 40%, transparent) !important;
+}
+
+/* Native checkbox: chunky DOS-style square */
+input[type="checkbox"] {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  background: var(--ega-black);
+  border: 1px solid var(--ega-white);
+  box-shadow:
+    inset 1px 1px 0 var(--ega-black),
+    inset -1px -1px 0 var(--ega-dark-gray);
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+}
+input[type="checkbox"]:checked::after {
+  content: "X";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-yellow);
+  font-family: var(--font-vt323), monospace;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Dialog / Popover / DropdownMenu — DOS modal window chrome */
+[data-slot="dialog-content"],
+[data-slot="popover-content"],
+[data-slot="dropdown-menu-content"] {
+  border-radius: 0 !important;
+  background: var(--window) !important;
+  color: var(--window-foreground) !important;
+  border: 2px solid var(--ega-black) !important;
+  box-shadow:
+    inset 1px 1px 0 0 var(--ega-white),
+    inset -2px -2px 0 0 var(--ega-dark-gray),
+    4px 4px 0 0 var(--ega-black) !important;
+  padding: 0 !important;
+}
+
+[data-slot="dropdown-menu-item"] {
+  border-radius: 0 !important;
+  font-family: var(--font-vt323), monospace !important;
+  font-size: 18px !important;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem !important;
+  color: var(--window-foreground) !important;
+}
+[data-slot="dropdown-menu-item"]:focus,
+[data-slot="dropdown-menu-item"][data-highlighted] {
+  background: var(--ega-blue) !important;
+  color: var(--ega-white) !important;
+}
+
+[data-slot="dialog-overlay"] {
+  background: rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: none !important;
+}
+
+/* Tabs */
+[data-slot="tabs-list"] {
+  border-radius: 0 !important;
+  background: transparent !important;
+  gap: 0;
+  height: auto !important;
+  padding: 0 !important;
+}
+[data-slot="tabs-trigger"] {
+  border-radius: 0 !important;
+  font-family: var(--font-vt323), monospace !important;
+  font-size: 18px !important;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem !important;
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid transparent;
+}
+[data-slot="tabs-trigger"][data-state="active"] {
+  background: var(--accent-yellow);
+  color: var(--ega-black);
+  box-shadow:
+    inset 1px 1px 0 var(--ega-white),
+    inset -1px -1px 0 var(--ega-dark-gray);
+}
+
+/* Card */
+[data-slot="card"] {
+  border-radius: 0 !important;
+  background: var(--window) !important;
+  color: var(--window-foreground) !important;
+  border: 1px solid var(--ega-black) !important;
+  box-shadow:
+    inset 1px 1px 0 var(--ega-white),
+    inset -1px -1px 0 var(--ega-dark-gray),
+    2px 2px 0 var(--ega-black) !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+/* Badge */
+[data-slot="badge"] {
+  border-radius: 0 !important;
+  font-family: var(--font-vt323), monospace !important;
+  font-size: 14px !important;
+  text-transform: uppercase;
+  padding: 0 0.4rem !important;
+  background: var(--accent-cyan) !important;
+  color: var(--ega-black) !important;
+  border: 1px solid var(--ega-black) !important;
+}
+
+/* Separator */
+[data-slot="separator"] {
+  background: var(--foreground);
+}
+
+/* Tooltip */
+[data-slot="tooltip-content"] {
+  border-radius: 0 !important;
+  background: var(--accent-yellow) !important;
+  color: var(--ega-black) !important;
+  border: 1px solid var(--ega-black) !important;
+  font-family: var(--font-vt323), monospace !important;
+  font-size: 16px !important;
+}
+
+/* Links */
+a {
+  color: var(--accent-cyan);
+  text-underline-offset: 2px;
+}
+a:hover {
+  color: var(--accent-yellow);
+  text-decoration: underline;
+}
+
+/* Utility: blue-bg helpers for things rendered "on the desktop" */
+.crt-on-desktop {
+  background: var(--background);
+  color: var(--foreground);
 }

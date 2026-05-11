@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
-import { Roboto_Mono, Geist } from "next/font/google";
+import { VT323, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { cn } from "@/lib/utils";
+import CRTOverlay from "./components/crt/CRTOverlay";
+import BootSequence from "./components/crt/BootSequence";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const robotoMono = Roboto_Mono({
-  variable: "--font-roboto-mono",
+const vt323 = VT323({
+  weight: "400",
   subsets: ["latin"],
+  variable: "--font-vt323",
+  display: "swap",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
+  variable: "--font-ibm-plex-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Nikolai Tandberg",
-  description: "Personlig hjemmeside/ e-portefølje",
+  title: "NIKOLAI.SYS — Personal Terminal",
+  description: "Personlig hjemmeside / e-portefølje (DOS edition)",
 };
 
 export default function RootLayout({
@@ -22,9 +30,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="nb" className={cn("font-sans", geist.variable)}>
-      <body className={`${robotoMono.variable} antialiased`}>
-        <ThemeProvider>{children}</ThemeProvider>
+    <html lang="nb" className={`${vt323.variable} ${ibmPlexMono.variable}`}>
+      <body className="antialiased crt-on-desktop">
+        <ThemeProvider>
+          <BootSequence />
+          {children}
+          <CRTOverlay />
+        </ThemeProvider>
       </body>
     </html>
   );

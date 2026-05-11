@@ -1,6 +1,6 @@
 "use client";
 import type { TimelineItem } from "@/types";
-import Button from "@/app/components/Button";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   item: TimelineItem;
@@ -18,39 +18,30 @@ export default function TimelineCard({
   return (
     <>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold">{item.title}</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-accent-yellow">[{item.date}]</span>
+          <span className="font-bold uppercase tracking-wide text-foreground">
+            {item.title}
+          </span>
           {item.archived && (
-            <span className="text-xs bg-quaternary/15 text-quaternary px-1.5 py-0.5 rounded">
-              Archived
+            <span className="text-xs uppercase bg-accent-red text-white px-1.5 border border-black">
+              ARCHIVED
             </span>
           )}
         </div>
-        <p className="text-sm text-foreground/50 mt-0.5 line-clamp-1">
-          {item.date} &mdash; {item.description}
+        <p className="text-base text-foreground/80 line-clamp-1">
+          {item.description}
         </p>
       </div>
-      <div className="flex gap-1.5 shrink-0">
-        <Button
-          variant="ghost"
-          className="px-2.5 py-1 text-sm"
-          onClick={onEdit}
-        >
+      <div className="flex gap-1 shrink-0 flex-wrap">
+        <Button variant="outline" onClick={onEdit}>
           Edit
         </Button>
-        <Button
-          variant="ghost"
-          className="px-2.5 py-1 text-sm"
-          onClick={onArchive}
-        >
+        <Button variant="outline" onClick={onArchive}>
           {item.archived ? "Unarchive" : "Archive"}
         </Button>
-        <Button
-          variant="danger"
-          className="px-2.5 py-1 text-sm"
-          onClick={onDelete}
-        >
-          Delete
+        <Button variant="destructive" onClick={onDelete}>
+          Del
         </Button>
       </div>
     </>

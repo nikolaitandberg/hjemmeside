@@ -5,6 +5,7 @@ import prisma from "@/utils/db";
 import { parseJsonArray } from "@/utils/jsonArray";
 import AdminTabsWrapper from "./AdminTabsWrapper";
 import AdminHeader from "./AdminHeader";
+import TerminalWindow from "@/app/components/crt/TerminalWindow";
 import type { Project, TimelineItem } from "@/types";
 
 export default async function AdminPage() {
@@ -51,10 +52,17 @@ export default async function AdminPage() {
   }));
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10">
-      <AdminHeader email={session.user?.email ?? ""} />
-      <hr className="my-6 border-foreground/10" />
-      <AdminTabsWrapper projects={projects} timelineItems={timelineItems} />
+    <div className="min-h-screen p-4 md:p-8">
+      <div className="max-w-5xl mx-auto">
+        <AdminHeader email={session.user?.email ?? ""} />
+        <TerminalWindow
+          title="CONTROL.PNL"
+          variant="screen"
+          buttons={["min", "max", "close"]}
+        >
+          <AdminTabsWrapper projects={projects} timelineItems={timelineItems} />
+        </TerminalWindow>
+      </div>
     </div>
   );
 }

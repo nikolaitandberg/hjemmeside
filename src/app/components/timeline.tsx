@@ -1,48 +1,68 @@
 import type { TimelineItem } from "@/types";
+import { Badge } from "@/components/ui/badge";
 
+/**
+ * Renders the timeline as a DOS `dir /s` tree listing.
+ * Each item is a "folder" with date, title, description, and tag badges.
+ */
 export default function Timeline({ items }: { items: TimelineItem[] }) {
+  if (!items.length) {
+    return (
+      <div className="text-foreground crt-glow">
+        File not found: TIMELINE\*.*
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full">
-      <h2 className="text-2xl font-bold mb-6">Tidslinje</h2>
-      <div className="w-full max-w-3xl">
-        {items.map((item, index) => (
-          <div key={item.id} className="relative w-full">
-            {/* Absolutely positioned line that goes through the margin */}
-            <div className="flex flex-row w-full">
-              {/* Dot/line column */}
-              <div className="flex flex-col items-center justify-start relative z-10 w-10">
-                <div className="w-4 h-4 rounded-full bg-primary z-10 mb-4"></div>
-                {/* Only render the vertical line for non-last items */}
-                {index !== items.length - 1 && (
-                  <div
-                    className="absolute left-1/2 -translate-x-1/2 w-0.5 h-full bg-primary/40 z-0"
-                    aria-hidden="true"
-                  />
-                )}
+    <div className="w-full font-[var(--font-vt323)] text-foreground crt-glow">
+      <div className="text-base mb-2 text-accent-cyan">
+        Directory of C:\NIKOLAI\TIMELINE
+      </div>
+      <ul className="space-y-1">
+        {items.map((item, i) => {
+          const isLast = i === items.length - 1;
+          const branch = isLast ? "└──" : "├──";
+          const stem = isLast ? "   " : "│  ";
+          return (
+            <li key={item.id} className="leading-tight">
+              <div className="flex items-baseline gap-2">
+                <span className="text-accent-yellow whitespace-pre">
+                  {branch}
+                </span>
+                <span className="text-accent-yellow font-bold">
+                  [{item.date}]
+                </span>
+                <span className="text-foreground font-bold uppercase tracking-wide">
+                  {item.title}
+                </span>
               </div>
-              {/* Info column */}
-              <div className="flex-1 flex flex-col min-w-0 pl-4 mb-12">
-                <div className="text-xs font-mono text-primary whitespace-nowrap mb-1">
-                  {item.date}
-                </div>
-                <h3 className="text-lg font-bold">{item.title}</h3>
-                <p className="mt-1 text-foreground/80">{item.description}</p>
-                {item.tags && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+              <div className="ml-6 flex">
+                <span className="text-accent-yellow whitespace-pre">
+                  {stem}
+                </span>
+                <p className="ml-1 text-foreground/95">{item.description}</p>
+              </div>
+              {item.tags.length > 0 && (
+                <div className="ml-6 flex items-start">
+                  <span className="text-accent-yellow whitespace-pre">
+                    {stem}
+                  </span>
+                  <div className="ml-1 flex flex-wrap gap-1.5 mb-2">
                     {item.tags.map((tag, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-1 text-xs bg-secondary/10 text-secondary rounded-md"
-                      >
+                      <Badge key={idx} variant="secondary">
                         {tag}
-                      </span>
+                      </Badge>
                     ))}
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      <div className="mt-3 text-base text-dim">
+        {items.length} folder(s) listed. 640K bytes free.
       </div>
     </div>
   );
