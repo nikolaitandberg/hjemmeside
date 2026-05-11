@@ -527,6 +527,11 @@ input[type="checkbox"]:checked::after {
   padding: 0 !important;
 }
 
+[data-slot="dropdown-menu-content"] {
+  width: max-content !important;
+  overflow: visible !important;
+}
+
 [data-slot="dropdown-menu-item"] {
   border-radius: 0 !important;
   font-family: var(--font-vt323), monospace !important;
@@ -534,6 +539,7 @@ input[type="checkbox"]:checked::after {
   text-transform: uppercase;
   padding: 0.25rem 0.75rem !important;
   color: var(--window-foreground) !important;
+  white-space: nowrap !important;
 }
 [data-slot="dropdown-menu-item"]:focus,
 [data-slot="dropdown-menu-item"][data-highlighted] {
