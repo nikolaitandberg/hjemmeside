@@ -3,6 +3,10 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import TerminalWindow from "@/app/components/crt/TerminalWindow";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -19,48 +23,54 @@ export default function AdminLoginPage() {
       password,
     });
     if (result?.error) {
-      setError("Invalid email or password");
+      setError("LOGIN.SYS: Invalid email or password");
     } else {
       router.push("/admin");
     }
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-20 p-8 bg-background rounded-lg border border-foreground/10 shadow-lg">
-      <h2 className="text-2xl font-bold mb-6 text-center">Admin Login</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div>
-          <label className="block mb-1 text-sm font-medium text-foreground/70">
-            Email
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full border border-foreground/20 bg-background text-foreground rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-foreground/40 transition-colors"
-          />
-        </div>
-        <div>
-          <label className="block mb-1 text-sm font-medium text-foreground/70">
-            Password
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full border border-foreground/20 bg-background text-foreground rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-foreground/40 transition-colors"
-          />
-        </div>
-        {error && <div className="text-red-600 text-sm">{error}</div>}
-        <button
-          type="submit"
-          className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/85 font-semibold cursor-pointer transition-colors"
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        <TerminalWindow
+          title="LOGIN.EXE"
+          buttons={["close"]}
+          footer={<span>F1=Help &nbsp; ENTER=Submit &nbsp; ESC=Cancel</span>}
         >
-          Login
-        </button>
-      </form>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <div className="text-base mb-1">
+              ▓▒░ Authentication Required ░▒▓
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label className="uppercase text-base text-black">Email</Label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoFocus
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label className="uppercase text-base text-black">Password</Label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            {error && (
+              <div className="text-base text-accent-red bg-black px-2 py-0.5 border border-accent-red">
+                &gt; {error}
+              </div>
+            )}
+            <Button type="submit" className="w-full">
+              [ENTER] Login
+            </Button>
+          </form>
+        </TerminalWindow>
+      </div>
     </div>
   );
 }

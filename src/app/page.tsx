@@ -2,6 +2,8 @@ import Image from "next/image";
 import Navigation from "./components/Navigation";
 import Timeline from "./components/timeline";
 import Projects from "./components/projects";
+import Prompt from "./components/crt/Prompt";
+import TerminalWindow from "./components/crt/TerminalWindow";
 import prisma from "@/utils/db";
 import { parseJsonArray } from "@/utils/jsonArray";
 import type { Project, TimelineItem } from "@/types";
@@ -28,56 +30,89 @@ export default async function Home() {
   }));
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-12">
       <Navigation />
 
-      <main className="mx-auto w-11/12 md:w-5/6 lg:w-4/6 mt-8 sm:mt-12 md:mt-16">
-        <h1 className="text-3xl sm:text-4xl font-bold">
-          Hei! Jeg heter Nikolai
-        </h1>
-        <p className="my-4">
-          Takk for at du sjekker innom hjemmesiden min, ta en titt nedenfor for
-          å se hva jeg holder på med for tiden. Ønsker du å ta kontakt finner du
-          min e-post og linkedin øverst på siden, ellers kan du sjekke ut noen
-          av prosjektene mine på github.
-        </p>
+      <main className="mx-auto w-11/12 md:w-5/6 lg:w-4/6 pt-4 pb-16 space-y-10">
+        {/* ===== header: whoami + about (left) / profile photo (right) ===== */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          {/* text + timeline — left 2 cols */}
+          <div className="md:col-span-2 space-y-4">
+            <div>
+              <Prompt path="C:\NIKOLAI" command="whoami" />
+              <h1 className="mt-2 text-4xl sm:text-5xl text-accent-yellow crt-glow-strong">
+                &gt; Nikolai Tandberg
+              </h1>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 md:mt-24">
-          <section className="col-span-1 flex flex-col items-center md:items-start">
-            <Image
-              src="/images/diggn5998-min.jpg"
-              alt="Pressefoto av Nikolai Tandberg fra brystet og opp, blå genser, rødt nøkkel-bånd rundt halsen"
-              width={416.7}
-              height={278.8}
-              className="max-w-full shadow-lg rounded-lg"
-            />
-            <p className="text-xs mt-2">
-              foto:{" "}
-              <a
-                href="https://foto.samfundet.no"
-                className="transition-colors duration-300 ease-in-out hover:text-secondary"
+            <div>
+              <Prompt path="C:\NIKOLAI" command="type ABOUT.TXT" />
+              <pre className="mt-2 whitespace-pre-wrap font-[var(--font-vt323)] text-foreground crt-glow leading-snug">
+                {`Hei! Jeg heter Nikolai.
+
+Takk for at du sjekker innom hjemmesiden min. Ta en titt
+nedenfor for å se hva jeg holder på med for tiden.
+
+Ønsker du å ta kontakt finner du min e-post og LinkedIn
+i toppmenyen (Goto >), ellers kan du sjekke ut noen av
+prosjektene mine på GitHub.`}
+              </pre>
+            </div>
+
+            <div>
+              <Prompt path="C:\NIKOLAI" command="dir TIMELINE\ /S" />
+              <TerminalWindow
+                title="TIMELINE.SYS"
+                buttons={["min", "max", "close"]}
+                variant="screen"
               >
-                foto.samfundet.no
-              </a>
-            </p>
-            <ul className="mt-6 md:mt-12 self-start">
-              <li>Navn: Nikolai Tandberg</li>
-              <li>Fødselsdato: 21.12.04</li>
-              <li>Sted: Trondheim</li>
-            </ul>
-          </section>
+                <Timeline items={timelineItems} />
+              </TerminalWindow>
+            </div>
+          </div>
 
-          <section className="col-span-1 md:col-span-2 mt-8 md:mt-0">
-            <Timeline items={timelineItems} />
-          </section>
-        </div>
-        <div className="w-full mt-16">
+          {/* photo — right 1 col */}
+          <div className="col-span-1 space-y-3">
+            <Prompt path="C:\NIKOLAI" command="dir PROFILE\" />
+            <TerminalWindow
+              title="PROFILE.BMP"
+              buttons={["min", "max", "close"]}
+              bodyClassName="p-0"
+              footer={
+                <span className="text-xs">
+                  FOTO:{" "}
+                  <a href="https://foto.samfundet.no" className="underline">
+                    foto.samfundet.no
+                  </a>
+                </span>
+              }
+            >
+              <Image
+                src="/images/diggn5998-min.jpg"
+                alt="Pressefoto av Nikolai Tandberg fra brystet og opp, blå genser, rødt nøkkel-bånd rundt halsen"
+                width={416}
+                height={279}
+                priority
+                loading="eager"
+                className="w-full h-auto block"
+                style={{ imageRendering: "pixelated" }}
+              />
+            </TerminalWindow>
+          </div>
+        </section>
+
+        {/* ===== ./projects --list ===== */}
+        <section>
+          <Prompt path="C:\NIKOLAI" command="./projects.exe --list" />
           <Projects projects={projects} />
-        </div>
+        </section>
+
+        {/* ===== footer ===== */}
+        <footer className="pt-6 text-center text-sm text-dim crt-glow">
+          [EOF] (c) {new Date().getFullYear()} Nikolai Tandberg &mdash; All
+          sectors verified.
+        </footer>
       </main>
-      <footer className="mt-12 pb-6 text-center text-sm text-foreground/70">
-        © {new Date().getFullYear()} Nikolai Tandberg
-      </footer>
     </div>
   );
 }

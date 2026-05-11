@@ -8,7 +8,7 @@ import {
 } from "@hello-pangea/dnd";
 import type { Project, TimelineItem } from "@/types";
 import Dialog from "./Dialog";
-import Button from "@/app/components/Button";
+import { Button } from "@/components/ui/button";
 import ProjectCard from "./ProjectCard";
 import TimelineCard from "./TimelineCard";
 import ProjectDialog from "./ProjectDialog";
@@ -18,14 +18,13 @@ export type { Project, TimelineItem };
 
 function GripIcon() {
   return (
-    <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
-      <circle cx="2" cy="2" r="1.5" />
-      <circle cx="8" cy="2" r="1.5" />
-      <circle cx="2" cy="8" r="1.5" />
-      <circle cx="8" cy="8" r="1.5" />
-      <circle cx="2" cy="14" r="1.5" />
-      <circle cx="8" cy="14" r="1.5" />
-    </svg>
+    <span
+      aria-hidden="true"
+      className="font-mono text-accent-yellow leading-none select-none"
+      title="Drag to reorder"
+    >
+      ::
+    </span>
   );
 }
 
@@ -73,7 +72,6 @@ export default function AdminTabs({
     }
   }, [tab]);
 
-  // --- Project dialog ---
   const openProjectDialog = (project: Project | null = null) => {
     setEditingProject(project);
     setShowProjectDialog(true);
@@ -92,7 +90,6 @@ export default function AdminTabs({
     }
   };
 
-  // --- Timeline dialog ---
   const openTimelineDialog = (item: TimelineItem | null = null) => {
     setEditingTimeline(item);
     setShowTimelineDialog(true);
@@ -109,7 +106,6 @@ export default function AdminTabs({
     }
   };
 
-  // --- Delete dialog ---
   const openDeleteDialog = (
     type: "project" | "timeline",
     id: string,
@@ -139,7 +135,6 @@ export default function AdminTabs({
     closeDeleteDialog();
   };
 
-  // --- Archive ---
   async function handleArchive(
     type: "project" | "timeline",
     id: string,
@@ -164,7 +159,6 @@ export default function AdminTabs({
     setIsSaving(false);
   }
 
-  // --- Drag-and-drop ---
   async function onDragEnd(result: DropResult) {
     if (!result.destination) return;
     setIsSaving(true);
@@ -197,51 +191,48 @@ export default function AdminTabs({
   }
 
   return (
-    <div>
-      {/* Tab navigation */}
-      <div className="flex gap-6 mb-8 border-b border-foreground/10">
+    <div className="font-[var(--font-vt323)] crt-glow">
+      {/* Tab navigation styled as DOS menu */}
+      <div className="flex gap-1 mb-4 border-b border-foreground/60">
         {(["projects", "timeline"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`pb-3 text-sm font-medium transition-colors cursor-pointer capitalize ${
+            className={`px-3 py-1 uppercase tracking-wider text-base ${
               tab === t
-                ? "border-b-2 border-primary text-primary"
-                : "text-foreground/50 hover:text-foreground"
+                ? "bg-accent-yellow text-black"
+                : "text-foreground hover:bg-blue-900"
             }`}
           >
-            {t}
+            [{t === "projects" ? "P" : "T"}] {t}
           </button>
         ))}
       </div>
 
-      {/* Toolbar */}
-      <div className="mb-6 flex justify-between items-center">
-        <label className="inline-flex items-center gap-2 text-sm text-foreground/60 cursor-pointer select-none">
+      <div className="mb-4 flex justify-between items-center flex-wrap gap-3">
+        <label className="inline-flex items-center gap-2 text-base text-foreground cursor-pointer select-none">
           <input
             type="checkbox"
             checked={showArchived}
             onChange={() => setShowArchived((v) => !v)}
-            className="accent-primary cursor-pointer"
           />
           Show archived
         </label>
         {tab === "projects" ? (
-          <Button onClick={() => openProjectDialog()}>+ Add Project</Button>
+          <Button onClick={() => openProjectDialog()}>+ New Project</Button>
         ) : (
           <Button onClick={() => openTimelineDialog()}>
-            + Add Timeline Item
+            + New Timeline Item
           </Button>
         )}
       </div>
 
-      {/* Draggable lists */}
       <DragDropContext onDragEnd={onDragEnd}>
         {tab === "projects" ? (
           <Droppable droppableId="projects-droppable">
             {(provided) => (
               <ul
-                className="mb-8"
+                className="mb-6 border border-foreground/40 bg-black/30"
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
@@ -257,35 +248,32 @@ export default function AdminTabs({
                         <li
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          className="mb-3 rounded-lg border border-foreground/10 bg-background hover:border-foreground/20 transition-colors"
+                          className="border-b border-foreground/30 last:border-b-0 px-2 py-1 flex items-center gap-3"
                         >
-                          <div className="flex items-start gap-3 p-4">
-                            <div
-                              {...provided.dragHandleProps}
-                              className="mt-1 flex flex-col items-center gap-0.5 cursor-grab text-foreground/30 hover:text-foreground/60 shrink-0"
-                              title="Drag to reorder"
-                            >
-                              <GripIcon />
-                            </div>
-                            <ProjectCard
-                              project={project}
-                              onEdit={() => openProjectDialog(project)}
-                              onArchive={() =>
-                                handleArchive(
-                                  "project",
-                                  project.id,
-                                  !project.archived,
-                                )
-                              }
-                              onDelete={() =>
-                                openDeleteDialog(
-                                  "project",
-                                  project.id,
-                                  project.title,
-                                )
-                              }
-                            />
+                          <div
+                            {...provided.dragHandleProps}
+                            className="cursor-grab shrink-0"
+                          >
+                            <GripIcon />
                           </div>
+                          <ProjectCard
+                            project={project}
+                            onEdit={() => openProjectDialog(project)}
+                            onArchive={() =>
+                              handleArchive(
+                                "project",
+                                project.id,
+                                !project.archived,
+                              )
+                            }
+                            onDelete={() =>
+                              openDeleteDialog(
+                                "project",
+                                project.id,
+                                project.title,
+                              )
+                            }
+                          />
                         </li>
                       )}
                     </Draggable>
@@ -298,7 +286,7 @@ export default function AdminTabs({
           <Droppable droppableId="timeline-droppable">
             {(provided) => (
               <ul
-                className="mb-8"
+                className="mb-6 border border-foreground/40 bg-black/30"
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
@@ -316,35 +304,24 @@ export default function AdminTabs({
                         <li
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          className="mb-3 rounded-lg border border-foreground/10 bg-background hover:border-foreground/20 transition-colors"
+                          className="border-b border-foreground/30 last:border-b-0 px-2 py-1 flex items-center gap-3"
                         >
-                          <div className="flex items-start gap-3 p-4">
-                            <div
-                              {...provided.dragHandleProps}
-                              className="mt-1 flex flex-col items-center gap-0.5 cursor-grab text-foreground/30 hover:text-foreground/60 shrink-0"
-                              title="Drag to reorder"
-                            >
-                              <GripIcon />
-                            </div>
-                            <TimelineCard
-                              item={item}
-                              onEdit={() => openTimelineDialog(item)}
-                              onArchive={() =>
-                                handleArchive(
-                                  "timeline",
-                                  item.id,
-                                  !item.archived,
-                                )
-                              }
-                              onDelete={() =>
-                                openDeleteDialog(
-                                  "timeline",
-                                  item.id,
-                                  item.title,
-                                )
-                              }
-                            />
+                          <div
+                            {...provided.dragHandleProps}
+                            className="cursor-grab shrink-0"
+                          >
+                            <GripIcon />
                           </div>
+                          <TimelineCard
+                            item={item}
+                            onEdit={() => openTimelineDialog(item)}
+                            onArchive={() =>
+                              handleArchive("timeline", item.id, !item.archived)
+                            }
+                            onDelete={() =>
+                              openDeleteDialog("timeline", item.id, item.title)
+                            }
+                          />
                         </li>
                       )}
                     </Draggable>
@@ -356,7 +333,6 @@ export default function AdminTabs({
         )}
       </DragDropContext>
 
-      {/* Form dialogs */}
       <ProjectDialog
         isOpen={showProjectDialog}
         onClose={closeProjectDialog}
@@ -370,50 +346,33 @@ export default function AdminTabs({
         onSaved={handleTimelineSaved}
       />
 
-      {/* Delete confirmation */}
       <Dialog
         isOpen={showDeleteDialog}
         onClose={closeDeleteDialog}
         title="Confirm Delete"
       >
-        <div className="flex flex-col gap-4">
-          <p>
+        <div className="flex flex-col gap-3">
+          <p className="text-base">
             Are you sure you want to delete{" "}
             <strong>{deleteTarget?.title}</strong>?
           </p>
-          <p className="text-sm text-foreground/60">
-            This action cannot be undone.
+          <p className="text-sm text-black/70">
+            WARNING: This action cannot be undone.
           </p>
-          <div className="flex gap-2 justify-end">
-            <Button variant="ghost" onClick={closeDeleteDialog}>
+          <div className="flex gap-2 justify-end pt-2 border-t border-black mt-2">
+            <Button variant="outline" onClick={closeDeleteDialog}>
               Cancel
             </Button>
-            <Button variant="danger" onClick={confirmDelete}>
+            <Button variant="destructive" onClick={confirmDelete}>
               Delete
             </Button>
           </div>
         </div>
       </Dialog>
 
-      {/* Saving toast */}
       {isSaving && (
-        <div className="fixed bottom-4 right-4 bg-foreground text-background px-4 py-2 rounded-lg text-sm font-medium shadow-lg flex items-center gap-2">
-          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            />
-          </svg>
-          Saving...
+        <div className="fixed bottom-8 right-4 bg-accent-yellow text-black border-2 border-black crt-bevel-out-thin px-3 py-1 text-base flex items-center gap-2 z-50">
+          <span className="crt-cursor" /> SAVING...
         </div>
       )}
     </div>

@@ -1,10 +1,10 @@
 "use client";
 import type { TimelineItem } from "@/types";
 import Dialog from "./Dialog";
-import Button from "@/app/components/Button";
-
-const inputClass =
-  "w-full border border-foreground/20 bg-background text-foreground rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-foreground/40 transition-colors";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface Props {
   isOpen: boolean;
@@ -61,50 +61,69 @@ export default function TimelineDialog({
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title={editingItem ? "Edit Timeline Item" : "Add New Timeline Item"}
+      title={editingItem ? "Edit Timeline Item" : "Add Timeline Item"}
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          key={`title-${editingItem?.id || "new"}`}
-          name="title"
-          placeholder="Title"
-          defaultValue={editingItem?.title || ""}
-          className={inputClass}
-          required
-        />
-        <input
-          key={`date-${editingItem?.id || "new"}`}
-          name="date"
-          placeholder="Date (e.g. Aug. 2023 - Aug. 2024)"
-          defaultValue={editingItem?.date || ""}
-          className={inputClass}
-          required
-        />
-        <textarea
-          key={`description-${editingItem?.id || "new"}`}
-          name="description"
-          placeholder="Description"
-          defaultValue={editingItem?.description || ""}
-          className={`${inputClass} min-h-[100px]`}
-          required
-          rows={4}
-        />
-        <input
-          key={`tags-${editingItem?.id || "new"}`}
-          name="tags"
-          placeholder="Tags (comma separated)"
-          defaultValue={editingItem?.tags.join(", ") || ""}
-          className={inputClass}
-        />
-        <div className="flex gap-2 justify-end">
-          <Button type="button" variant="ghost" onClick={onClose}>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <Field label="Title">
+          <Input
+            key={`title-${editingItem?.id || "new"}`}
+            name="title"
+            placeholder="Started at..."
+            defaultValue={editingItem?.title || ""}
+            required
+          />
+        </Field>
+        <Field label="Date">
+          <Input
+            key={`date-${editingItem?.id || "new"}`}
+            name="date"
+            placeholder="Aug. 2023 - Aug. 2024"
+            defaultValue={editingItem?.date || ""}
+            required
+          />
+        </Field>
+        <Field label="Description">
+          <Textarea
+            key={`description-${editingItem?.id || "new"}`}
+            name="description"
+            placeholder="Details..."
+            defaultValue={editingItem?.description || ""}
+            required
+            rows={4}
+          />
+        </Field>
+        <Field label="Tags (comma separated)">
+          <Input
+            key={`tags-${editingItem?.id || "new"}`}
+            name="tags"
+            placeholder="react, typescript"
+            defaultValue={editingItem?.tags.join(", ") || ""}
+          />
+        </Field>
+        <div className="flex gap-2 justify-end pt-2 border-t border-black mt-2">
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary">
-            {editingItem ? "Update" : "Create"}
-          </Button>
+          <Button type="submit">{editingItem ? "Update" : "Create"}</Button>
         </div>
       </form>
     </Dialog>
+  );
+}
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <Label className="uppercase text-base text-black tracking-wide">
+        {label}
+      </Label>
+      {children}
+    </div>
   );
 }
