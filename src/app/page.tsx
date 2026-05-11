@@ -34,22 +34,21 @@ export default async function Home() {
       <Navigation />
 
       <main className="mx-auto w-11/12 md:w-5/6 lg:w-4/6 pt-4 pb-16 space-y-10">
-        {/* ===== whoami ===== */}
-        <section>
-          <Prompt path="C:\NIKOLAI" command="whoami" />
-          <h1 className="mt-2 text-4xl sm:text-5xl text-accent-yellow crt-glow-strong">
-            &gt; Nikolai Tandberg
-          </h1>
-          <p className="mt-1 text-accent-cyan crt-glow">
-            sysadmin // student // utvikler
-          </p>
-        </section>
+        {/* ===== header: whoami + about (left) / profile photo (right) ===== */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          {/* text + timeline — left 2 cols */}
+          <div className="md:col-span-2 space-y-4">
+            <div>
+              <Prompt path="C:\NIKOLAI" command="whoami" />
+              <h1 className="mt-2 text-4xl sm:text-5xl text-accent-yellow crt-glow-strong">
+                &gt; Nikolai Tandberg
+              </h1>
+            </div>
 
-        {/* ===== cat about.txt ===== */}
-        <section>
-          <Prompt path="C:\NIKOLAI" command="type ABOUT.TXT" />
-          <pre className="mt-2 whitespace-pre-wrap font-[var(--font-vt323)] text-foreground crt-glow leading-snug">
-            {`Hei! Jeg heter Nikolai.
+            <div>
+              <Prompt path="C:\NIKOLAI" command="type ABOUT.TXT" />
+              <pre className="mt-2 whitespace-pre-wrap font-[var(--font-vt323)] text-foreground crt-glow leading-snug">
+                {`Hei! Jeg heter Nikolai.
 
 Takk for at du sjekker innom hjemmesiden min. Ta en titt
 nedenfor for å se hva jeg holder på med for tiden.
@@ -57,54 +56,48 @@ nedenfor for å se hva jeg holder på med for tiden.
 Ønsker du å ta kontakt finner du min e-post og LinkedIn
 i toppmenyen (Goto >), ellers kan du sjekke ut noen av
 prosjektene mine på GitHub.`}
-          </pre>
-        </section>
+              </pre>
+            </div>
 
-        {/* ===== dir profile / dir timeline ===== */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* photo card */}
+            <div>
+              <Prompt path="C:\NIKOLAI" command="dir TIMELINE\ /S" />
+              <TerminalWindow
+                title="TIMELINE.SYS"
+                buttons={["min", "max", "close"]}
+                variant="screen"
+              >
+                <Timeline items={timelineItems} />
+              </TerminalWindow>
+            </div>
+          </div>
+
+          {/* photo — right 1 col */}
           <div className="col-span-1 space-y-3">
             <Prompt path="C:\NIKOLAI" command="dir PROFILE\" />
             <TerminalWindow
               title="PROFILE.BMP"
               buttons={["min", "max", "close"]}
+              bodyClassName="p-0"
+              footer={
+                <span className="text-xs">
+                  FOTO:{" "}
+                  <a href="https://foto.samfundet.no" className="underline">
+                    foto.samfundet.no
+                  </a>
+                </span>
+              }
             >
               <Image
                 src="/images/diggn5998-min.jpg"
                 alt="Pressefoto av Nikolai Tandberg fra brystet og opp, blå genser, rødt nøkkel-bånd rundt halsen"
                 width={416}
                 height={279}
-                className="w-full h-auto block border border-black"
+                priority
+                loading="eager"
+                className="w-full h-auto block"
                 style={{ imageRendering: "pixelated" }}
               />
-              <div className="mt-2 text-xs">
-                FOTO:{" "}
-                <a href="https://foto.samfundet.no" className="underline">
-                  foto.samfundet.no
-                </a>
-              </div>
             </TerminalWindow>
-
-            <TerminalWindow title="INFO.DAT" buttons={["close"]}>
-              <ul className="font-[var(--font-vt323)] text-base leading-tight space-y-0.5">
-                <li>
-                  <span className="text-blue-800">NAVN.....:</span> Nikolai
-                  Tandberg
-                </li>
-                <li>
-                  <span className="text-blue-800">F.DATO...:</span> 21.12.04
-                </li>
-                <li>
-                  <span className="text-blue-800">STED.....:</span> Trondheim
-                </li>
-              </ul>
-            </TerminalWindow>
-          </div>
-
-          {/* timeline */}
-          <div className="col-span-1 md:col-span-2">
-            <Prompt path="C:\NIKOLAI" command="dir TIMELINE\ /S" />
-            <Timeline items={timelineItems} />
           </div>
         </section>
 

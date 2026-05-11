@@ -19,7 +19,7 @@ export default function Timeline({ items }: { items: TimelineItem[] }) {
       <div className="text-base mb-2 text-accent-cyan">
         Directory of C:\NIKOLAI\TIMELINE
       </div>
-      <ul className="space-y-1">
+      <ul className="space-y-1 max-h-80 overflow-y-auto pr-1">
         {items.map((item, i) => {
           const isLast = i === items.length - 1;
           const branch = isLast ? "└──" : "├──";
