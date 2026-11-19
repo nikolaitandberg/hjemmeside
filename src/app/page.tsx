@@ -29,6 +29,12 @@ export default async function Home() {
     tags: parseJsonArray(t.tags),
   }));
 
+  const profileImage = await prisma.profileImage.findUnique({
+    where: { id: "main" },
+    select: { updatedAt: true },
+  });
+  const profileImageSrc = `/api/profile-image?v=${profileImage?.updatedAt.getTime() ?? 0}`;
+
   return (
     <div className="min-h-screen pb-12">
       <Navigation />
@@ -88,7 +94,8 @@ prosjektene mine på GitHub.`}
               }
             >
               <Image
-                src="/images/diggn5998-min.jpg"
+                src={profileImageSrc}
+                unoptimized
                 alt="Pressefoto av Nikolai Tandberg fra brystet og opp, blå genser, rødt nøkkel-bånd rundt halsen"
                 width={416}
                 height={279}

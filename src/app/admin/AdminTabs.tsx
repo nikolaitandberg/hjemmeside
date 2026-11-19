@@ -13,6 +13,7 @@ import ProjectCard from "./ProjectCard";
 import TimelineCard from "./TimelineCard";
 import ProjectDialog from "./ProjectDialog";
 import TimelineDialog from "./TimelineDialog";
+import ProfileImagePanel from "./ProfileImagePanel";
 
 export type { Project, TimelineItem };
 
@@ -31,9 +32,11 @@ function GripIcon() {
 export default function AdminTabs({
   projects,
   timelineItems,
+  profileImageVersion,
 }: {
   projects: Project[];
   timelineItems: TimelineItem[];
+  profileImageVersion: number;
 }) {
   const [tab, setTab] = useState(() => {
     if (typeof window !== "undefined") {
@@ -194,7 +197,7 @@ export default function AdminTabs({
     <div className="font-[var(--font-vt323)] crt-glow">
       {/* Tab navigation styled as DOS menu */}
       <div className="flex gap-1 mb-4 border-b border-foreground/60">
-        {(["projects", "timeline"] as const).map((t) => (
+        {(["projects", "timeline", "profile"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -204,134 +207,148 @@ export default function AdminTabs({
                 : "text-foreground hover:bg-blue-900"
             }`}
           >
-            [{t === "projects" ? "P" : "T"}] {t}
+            [{t[0].toUpperCase()}] {t}
           </button>
         ))}
       </div>
 
-      <div className="mb-4 flex justify-between items-center flex-wrap gap-3">
-        <label className="inline-flex items-center gap-2 text-base text-foreground cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={showArchived}
-            onChange={() => setShowArchived((v) => !v)}
-          />
-          Show archived
-        </label>
-        {tab === "projects" ? (
-          <Button onClick={() => openProjectDialog()}>+ New Project</Button>
-        ) : (
-          <Button onClick={() => openTimelineDialog()}>
-            + New Timeline Item
-          </Button>
-        )}
-      </div>
+      {tab === "profile" ? (
+        <ProfileImagePanel initialVersion={profileImageVersion} />
+      ) : (
+        <>
+          <div className="mb-4 flex justify-between items-center flex-wrap gap-3">
+            <label className="inline-flex items-center gap-2 text-base text-foreground cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showArchived}
+                onChange={() => setShowArchived((v) => !v)}
+              />
+              Show archived
+            </label>
+            {tab === "projects" ? (
+              <Button onClick={() => openProjectDialog()}>+ New Project</Button>
+            ) : (
+              <Button onClick={() => openTimelineDialog()}>
+                + New Timeline Item
+              </Button>
+            )}
+          </div>
 
-      <DragDropContext onDragEnd={onDragEnd}>
-        {tab === "projects" ? (
-          <Droppable droppableId="projects-droppable">
-            {(provided) => (
-              <ul
-                className="mb-6 border border-foreground/40 bg-black/30"
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-              >
-                {projectItems
-                  .filter((p) => (showArchived ? p.archived : !p.archived))
-                  .map((project, index) => (
-                    <Draggable
-                      key={project.id}
-                      draggableId={project.id}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <li
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className="border-b border-foreground/30 last:border-b-0 px-2 py-1 flex items-center gap-3"
+          <DragDropContext onDragEnd={onDragEnd}>
+            {tab === "projects" ? (
+              <Droppable droppableId="projects-droppable">
+                {(provided) => (
+                  <ul
+                    className="mb-6 border border-foreground/40 bg-black/30"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    {projectItems
+                      .filter((p) => (showArchived ? p.archived : !p.archived))
+                      .map((project, index) => (
+                        <Draggable
+                          key={project.id}
+                          draggableId={project.id}
+                          index={index}
                         >
-                          <div
-                            {...provided.dragHandleProps}
-                            className="cursor-grab shrink-0"
-                          >
-                            <GripIcon />
-                          </div>
-                          <ProjectCard
-                            project={project}
-                            onEdit={() => openProjectDialog(project)}
-                            onArchive={() =>
-                              handleArchive(
-                                "project",
-                                project.id,
-                                !project.archived,
-                              )
-                            }
-                            onDelete={() =>
-                              openDeleteDialog(
-                                "project",
-                                project.id,
-                                project.title,
-                              )
-                            }
-                          />
-                        </li>
-                      )}
-                    </Draggable>
-                  ))}
-                {provided.placeholder}
-              </ul>
-            )}
-          </Droppable>
-        ) : (
-          <Droppable droppableId="timeline-droppable">
-            {(provided) => (
-              <ul
-                className="mb-6 border border-foreground/40 bg-black/30"
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-              >
-                {timelineList
-                  .filter((item) =>
-                    showArchived ? item.archived : !item.archived,
-                  )
-                  .map((item, index) => (
-                    <Draggable
-                      key={item.id}
-                      draggableId={item.id}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <li
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className="border-b border-foreground/30 last:border-b-0 px-2 py-1 flex items-center gap-3"
+                          {(provided) => (
+                            <li
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              className="border-b border-foreground/30 last:border-b-0 px-2 py-1 flex items-center gap-3"
+                            >
+                              <div
+                                {...provided.dragHandleProps}
+                                className="cursor-grab shrink-0"
+                              >
+                                <GripIcon />
+                              </div>
+                              <ProjectCard
+                                project={project}
+                                onEdit={() => openProjectDialog(project)}
+                                onArchive={() =>
+                                  handleArchive(
+                                    "project",
+                                    project.id,
+                                    !project.archived,
+                                  )
+                                }
+                                onDelete={() =>
+                                  openDeleteDialog(
+                                    "project",
+                                    project.id,
+                                    project.title,
+                                  )
+                                }
+                              />
+                            </li>
+                          )}
+                        </Draggable>
+                      ))}
+                    {provided.placeholder}
+                  </ul>
+                )}
+              </Droppable>
+            ) : (
+              <Droppable droppableId="timeline-droppable">
+                {(provided) => (
+                  <ul
+                    className="mb-6 border border-foreground/40 bg-black/30"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    {timelineList
+                      .filter((item) =>
+                        showArchived ? item.archived : !item.archived,
+                      )
+                      .map((item, index) => (
+                        <Draggable
+                          key={item.id}
+                          draggableId={item.id}
+                          index={index}
                         >
-                          <div
-                            {...provided.dragHandleProps}
-                            className="cursor-grab shrink-0"
-                          >
-                            <GripIcon />
-                          </div>
-                          <TimelineCard
-                            item={item}
-                            onEdit={() => openTimelineDialog(item)}
-                            onArchive={() =>
-                              handleArchive("timeline", item.id, !item.archived)
-                            }
-                            onDelete={() =>
-                              openDeleteDialog("timeline", item.id, item.title)
-                            }
-                          />
-                        </li>
-                      )}
-                    </Draggable>
-                  ))}
-                {provided.placeholder}
-              </ul>
+                          {(provided) => (
+                            <li
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              className="border-b border-foreground/30 last:border-b-0 px-2 py-1 flex items-center gap-3"
+                            >
+                              <div
+                                {...provided.dragHandleProps}
+                                className="cursor-grab shrink-0"
+                              >
+                                <GripIcon />
+                              </div>
+                              <TimelineCard
+                                item={item}
+                                onEdit={() => openTimelineDialog(item)}
+                                onArchive={() =>
+                                  handleArchive(
+                                    "timeline",
+                                    item.id,
+                                    !item.archived,
+                                  )
+                                }
+                                onDelete={() =>
+                                  openDeleteDialog(
+                                    "timeline",
+                                    item.id,
+                                    item.title,
+                                  )
+                                }
+                              />
+                            </li>
+                          )}
+                        </Draggable>
+                      ))}
+                    {provided.placeholder}
+                  </ul>
+                )}
+              </Droppable>
             )}
-          </Droppable>
-        )}
-      </DragDropContext>
+          </DragDropContext>
+        </>
+      )}
 
       <ProjectDialog
         isOpen={showProjectDialog}

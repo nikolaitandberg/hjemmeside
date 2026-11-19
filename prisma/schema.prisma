@@ -45,3 +45,10 @@ model Project {
   order        Int      @default(0)
   archived     Boolean  @default(false)
 }
+
+model ProfileImage {
+  id        String   @id @default("main")
+  data      Bytes
+  mimeType  String
+  updatedAt DateTime @updatedAt
+}
