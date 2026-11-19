@@ -51,6 +51,11 @@ export default async function AdminPage() {
     tags: parseJsonArray(t.tags),
   }));
 
+  const profileImage = await prisma.profileImage.findUnique({
+    where: { id: "main" },
+    select: { updatedAt: true },
+  });
+
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
@@ -60,7 +65,11 @@ export default async function AdminPage() {
           variant="screen"
           buttons={["min", "max", "close"]}
         >
-          <AdminTabsWrapper projects={projects} timelineItems={timelineItems} />
+          <AdminTabsWrapper
+            projects={projects}
+            timelineItems={timelineItems}
+            profileImageVersion={profileImage?.updatedAt.getTime() ?? 0}
+          />
         </TerminalWindow>
       </div>
     </div>
